@@ -1,4 +1,4 @@
-export type TaskProgress =
+export type TaskStatus =
   | "Backlog"
   | "In Progress"
   | "Completed"

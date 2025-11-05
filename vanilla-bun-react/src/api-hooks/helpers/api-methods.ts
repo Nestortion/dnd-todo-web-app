@@ -13,7 +13,7 @@ class API {
   post = <ReturnType = undefined, Payload = undefined>(
     path: string,
     payload: Payload,
-    headers: KyHeadersInit,
+    headers?: KyHeadersInit,
   ) => {
     return ky
       .post<ReturnType>(`${process.env.BUN_PUBLIC_SERVER_URL}${path}`, {
@@ -25,7 +25,7 @@ class API {
   put = <ReturnType = undefined, Payload = undefined>(
     path: string,
     payload: Payload,
-    headers: KyHeadersInit,
+    headers?: KyHeadersInit,
   ) => {
     return ky
       .put<ReturnType>(`${process.env.BUN_PUBLIC_SERVER_URL}${path}`, {
@@ -37,7 +37,7 @@ class API {
   delete = <ReturnType = undefined, Payload = undefined>(
     path: string,
     payload: Payload,
-    headers: KyHeadersInit,
+    headers?: KyHeadersInit,
   ) => {
     return ky
       .delete<ReturnType>(`${process.env.BUN_PUBLIC_SERVER_URL}${path}`, {

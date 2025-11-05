@@ -3,176 +3,193 @@ import {
   DndContext,
   DragOverlay,
   type DragEndEvent,
+  type DragMoveEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
 import Draggable from "@/components/page-components/root/draggable";
 import Droppable from "@/components/page-components/root/droppable";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGetTasks } from "@/api-hooks/queries";
+import { useMoveTask } from "@/api-hooks/mutations";
+import type { Task } from "@/types";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
 function Index() {
-  const { data: tasks } = useGetTasks();
+  const { data, isSuccess } = useGetTasks();
+  const [activeTask, setActiveTask] = useState<{ id: number; title: string }>();
+  const [localTasks, setLocaltasks] = useState<Array<Task>>();
 
-  const [data, setData] = useState<
-    Array<{ id: string; parentContainer?: string | number }>
-  >([
-    { id: "Ni hao" },
-    { id: "Dhokla" },
-    { id: "here" },
-    { id: "Its me" },
-    { id: "Batman" },
-    { id: "hehe xd" },
-    { id: "Ohayou" },
-    // { id: "Gozaimasu" },
-    // { id: "Kyou wa" },
-    // { id: "Meccha Samui" },
-    // { id: "Atode" },
-    // { id: "Tori ryori shimasu" },
-  ]);
-  const [containerData, setContainerData] = useState<
-    Record<string, Array<string>>
-  >({ "drop-container1": [], "drop-container2": [] });
-  const [activeId, setActiveId] = useState<string | number>();
+  const moveTaskMutation = useMoveTask();
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const backlogTasks = useMemo(() => {
+    if (!localTasks || localTasks.length === 0) return undefined;
+    return localTasks.filter((t) => t.status === "Backlog");
+  }, [localTasks]);
+  const inProgressTasks = useMemo(() => {
+    if (!localTasks || localTasks.length === 0) return undefined;
+    return localTasks.filter((t) => t.status === "In Progress");
+  }, [localTasks]);
+  const completedTasks = useMemo(() => {
+    if (!localTasks || localTasks.length === 0) return undefined;
+    return localTasks.filter((t) => t.status === "Completed");
+  }, [localTasks]);
+  const forTestingTasks = useMemo(() => {
+    if (!localTasks || localTasks.length === 0) return undefined;
+    return localTasks.filter((t) => t.status === "For Testing");
+  }, [localTasks]);
+  const finishedTasks = useMemo(() => {
+    if (!localTasks || localTasks.length === 0) return undefined;
+    return localTasks.filter((t) => t.status === "Finished");
+  }, [localTasks]);
+
+  useEffect(() => {
+    if (!isSuccess) return;
+    setLocaltasks(data.tasks);
+  }, [data, isSuccess]);
+
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { over, active } = event;
 
     if (over) {
-      if (over.id === "drop-container1") {
-        if (containerData["drop-container1"]?.some((d) => d === active.id))
-          return;
-        setContainerData((prev) => {
-          let newData = [...prev["drop-container1"], active.id];
-          if (prev["drop-container1"]?.some((d) => d === active.id))
-            return prev;
-          return {
-            ...prev,
-            "drop-container1": newData,
-          };
+      if (over.id === "backlog-container") {
+        if (backlogTasks?.some((d) => d.id === active.id)) return;
+        setLocaltasks((prev) => {
+          return prev?.map((t) => {
+            if (t.id === active.id) return { ...t, status: "Backlog" };
+            return t;
+          });
         });
-        if (data.length > 0) {
-          setData((prev) => prev.filter((d) => d.id !== active.id));
-        }
-        if (containerData["drop-container2"]!.length > 0) {
-          setContainerData((prev) => ({
-            ...prev,
-            "drop-container2": prev["drop-container2"]!.filter(
-              (d) => d !== active.id,
-            ),
-          }));
-        }
-      } else if (over.id === "drop-container2") {
-        if (containerData["drop-container2"]?.some((d) => d === active.id))
-          return;
-        setContainerData((prev) => {
-          let newData = [...prev["drop-container2"], active.id];
-          return {
-            ...prev,
-            "drop-container2": newData,
-          };
+        await moveTaskMutation.mutateAsync({
+          taskId: Number(active.id),
+          status: "Backlog",
         });
-        if (data.length > 0) {
-          setData((prev) => prev.filter((d) => d.id !== active.id));
-        }
-        if (containerData["drop-container1"]!.length > 0) {
-          setContainerData((prev) => ({
-            ...prev,
-            "drop-container1": prev["drop-container1"]!.filter(
-              (d) => d !== active.id,
-            ),
-          }));
-        }
-      }
-    } else {
-      if (active.data.current?.parentContainer === "drop-container1") {
-        setData((prev) =>
-          prev.some((d) => d.id === active.id)
-            ? prev
-            : [...prev, { id: active.id as string }],
-        );
-        if (containerData["drop-container1"]!.length > 0) {
-          setContainerData((prev) => ({
-            ...prev,
-            "drop-container1": prev["drop-container1"]!.filter(
-              (d) => d !== active.id,
-            ),
-          }));
-        }
-      } else if (active.data.current?.parentContainer === "drop-container2") {
-        setData((prev) =>
-          prev.some((d) => d.id === active.id)
-            ? prev
-            : [...prev, { id: active.id as string }],
-        );
-        if (containerData["drop-container2"]!.length > 0) {
-          setContainerData((prev) => ({
-            ...prev,
-            "drop-container2": prev["drop-container2"]!.filter(
-              (d) => d !== active.id,
-            ),
-          }));
-        }
+      } else if (over.id === "inprogress-container") {
+        if (inProgressTasks?.some((d) => d.id === active.id)) return;
+        setLocaltasks((prev) => {
+          return prev?.map((t) => {
+            if (t.id === active.id) return { ...t, status: "In Progress" };
+            return t;
+          });
+        });
+        await moveTaskMutation.mutateAsync({
+          taskId: Number(active.id),
+          status: "In Progress",
+        });
+      } else if (over.id === "completed-container") {
+        if (completedTasks?.some((d) => d.id === active.id)) return;
+        setLocaltasks((prev) => {
+          return prev?.map((t) => {
+            if (t.id === active.id) return { ...t, status: "Completed" };
+            return t;
+          });
+        });
+        await moveTaskMutation.mutateAsync({
+          taskId: Number(active.id),
+          status: "Completed",
+        });
+      } else if (over.id === "fortesting-container") {
+        if (forTestingTasks?.some((d) => d.id === active.id)) return;
+        setLocaltasks((prev) => {
+          return prev?.map((t) => {
+            if (t.id === active.id) return { ...t, status: "For Testing" };
+            return t;
+          });
+        });
+        await moveTaskMutation.mutateAsync({
+          taskId: Number(active.id),
+          status: "For Testing",
+        });
+      } else if (over.id === "finished-container") {
+        if (finishedTasks?.some((d) => d.id === active.id)) return;
+        setLocaltasks((prev) => {
+          return prev?.map((t) => {
+            if (t.id === active.id) return { ...t, status: "Finished" };
+            return t;
+          });
+        });
+        await moveTaskMutation.mutateAsync({
+          taskId: Number(active.id),
+          status: "Finished",
+        });
       }
     }
-    setActiveId(undefined);
-    return;
+    setActiveTask(undefined);
   };
 
-  // const handleDragMove = (event: DragMoveEvent) => {
-  //   const { active, over } = event;
-  //
-  //   if (active) {
-  //     setActiveId(active.id);
-  //   }
-  // };
+  const handleDragMove = (event: DragMoveEvent) => {
+    const { active, over } = event;
+
+    if (active) {
+      setActiveTask({
+        id: Number(active.id),
+        title: active.data.current?.task.title,
+      });
+    }
+  };
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
 
     if (active) {
-      setActiveId(active.id);
+      setActiveTask({
+        id: Number(active.id),
+        title: active.data.current?.task.title,
+      });
     }
-    console.log("testx");
   };
 
   return (
     <DndContext
       onDragEnd={handleDragEnd}
-      // onDragMove={handleDragMove}
+      onDragMove={handleDragMove}
       onDragStart={handleDragStart}
     >
-      {data.map((d, index) => (
-        <Draggable parentContainer={d.parentContainer} id={d.id} key={index} />
-      ))}
-
-      <div className="grid grid-cols-2">
-        <Droppable
-          data={containerData["drop-container1"]!}
-          id={"drop-container1"}
-        />
-        <Droppable
-          id={"drop-container2"}
-          data={containerData["drop-container2"]!}
-        />
-        <DragOverlay
-          dropAnimation={{
-            duration: 200,
-            easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
-          }}
-        >
-          {activeId && (
-            <Draggable
-              className="transform rotate-6"
-              gripClassName="cursor-grabbing"
-              id={activeId}
-            />
-          )}
-        </DragOverlay>
-      </div>
+      {isSuccess && (
+        <div className="grid grid-cols-5 gap-4">
+          <Droppable
+            id={"backlog-container"}
+            data={backlogTasks!}
+            header="Backlogs"
+          />
+          <Droppable
+            id={"inprogress-container"}
+            data={inProgressTasks!}
+            header="In Progress"
+          />
+          <Droppable
+            id={"completed-container"}
+            data={completedTasks!}
+            header="Completed"
+          />
+          <Droppable
+            id={"fortesting-container"}
+            data={forTestingTasks!}
+            header="For Testing"
+          />
+          <Droppable
+            id={"finished-container"}
+            data={finishedTasks!}
+            header="Finished"
+          />
+          <DragOverlay
+            dropAnimation={{
+              duration: 200,
+              easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
+            }}
+          >
+            {activeTask && (
+              <Draggable
+                className="transform rotate-6"
+                gripClassName="cursor-grabbing"
+                data={activeTask!}
+              />
+            )}
+          </DragOverlay>
+        </div>
+      )}
     </DndContext>
   );
 }
