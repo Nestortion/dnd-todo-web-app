@@ -1,24 +1,15 @@
-import { ModeToggle } from "@/components/mode-toggle";
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import Navigation from "@/components/page-components/root/navigation";
+import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 const RootLayout = () => (
-  <>
-    <div className="p-2 flex justify-between">
-      <div className="flex gap-2">
-        <Link to="/" className="[&.active]:font-bold">
-          Home
-        </Link>{" "}
-        <Link to="/about" className="[&.active]:font-bold">
-          About
-        </Link>
-      </div>
-      <ModeToggle />
+  <div className="px-20">
+    <Navigation />
+    <div className="p-4">
+      <Outlet />
     </div>
-    <hr />
-    <Outlet />
     <TanStackRouterDevtools />
-  </>
+  </div>
 );
 
 export const Route = createRootRoute({ component: RootLayout });

@@ -8,6 +8,13 @@ declare module "*.svg" {
   export = path;
 }
 
+declare module "*.png";
+declare module "*.jpg";
+declare module "*.webp";
+declare module "*.jpeg";
+declare module "*.gif";
+declare module "*.svg";
+
 declare module "*.module.css" {
   /**
    * A record of class names to their corresponding CSS module classes
@@ -19,5 +26,12 @@ declare module "*.module.css" {
 declare module "bun" {
   interface Env {
     BUN_PUBLIC_SERVER_URL: string;
+  }
+}
+
+// Register the router instance for type safety
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
   }
 }

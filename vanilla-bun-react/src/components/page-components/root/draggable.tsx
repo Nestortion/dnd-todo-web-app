@@ -1,77 +1,90 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types";
-import { useDndContext, useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
+import { useDraggable } from "@dnd-kit/core";
 import { DialogDescription, DialogTrigger } from "@radix-ui/react-dialog";
-import { Eye, GripVertical } from "lucide-react";
+import { memo } from "react";
 
-const Draggable = ({
-  data,
-  parentContainer,
-  className,
-  gripClassName,
-}: {
+const Draggable = memo(
+  ({
+    data,
+    className,
+  }: {
+    data: Task | { id: number; title: string };
+    className?: string;
+  }) => {
+    const { setNodeRef, listeners, attributes, isDragging } = useDraggable({
+      id: data.id,
+      data: {
+        task: data,
+      },
+    });
+
+    return (
+      <Card
+        {...listeners}
+        {...attributes}
+        ref={setNodeRef}
+        className={cn(
+          "relative bg-primary/20 shadow-md p-2",
+          isDragging ? "opacity-40" : "opacity-100",
+          className,
+        )}
+      >
+        <DraggableContent data={data} />
+      </Card>
+    );
+  },
+);
+type DraggableContentProps = {
   data: Task | { id: number; title: string };
-  parentContainer?: string | number;
-  className?: string;
-  gripClassName?: string;
-}) => {
-  const { setNodeRef, listeners, attributes, isDragging } = useDraggable({
-    id: data.id,
-    data: {
-      parentContainer,
-      task: data,
-    },
-  });
-
-  return (
-    <Card
-      ref={setNodeRef}
-      className={cn(
-        "relative bg-primary/20",
-        isDragging ? "opacity-40" : "opacity-100",
-        className,
-      )}
-    >
-      <CardContent>
-        <div className="flex justify-between items-center">
-          <div>
-            <Dialog>
-              <DialogTitle></DialogTitle>
-              <DialogTrigger asChild>
-                <Button
-                  variant={"ghost"}
-                  className="hover:cursor-pointer w-full min-w-full hover:bg-accent/20"
-                >
-                  {typeof data !== "number" && <p>{data.title}</p>}
-                </Button>
-              </DialogTrigger>
-              {"description" in data ? (
-                <DialogContent>
-                  <DialogDescription>{data.description}</DialogDescription>
-                </DialogContent>
-              ) : (
-                <DialogContent></DialogContent>
-              )}
-            </Dialog>
-          </div>
-          <div
-            {...listeners}
-            {...attributes}
-            className={cn(
-              "py-4 px-2 rounded-md hover:bg-accent/20 cursor-grab",
-              gripClassName,
-            )}
-          >
-            <GripVertical />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
 };
+
+const DraggableContent = memo(({ data }: DraggableContentProps) => {
+  return (
+    <CardContent className="p-0 space-y-2">
+      <div className="flex justify-between items-center">
+        <div className="w-full">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant={"ghost"}
+                className="hover:cursor-pointer w-full hover:bg-accent/20 font-mono h-fit text-start whitespace-pre-wrap"
+              >
+                <p className="w-full wrap-anywhere">{data.title}</p>
+              </Button>
+            </DialogTrigger>
+            {"description" in data ? (
+              <DialogContent>
+                <DialogHeader className="text-xl font-bold">
+                  <DialogTitle>{data.title}</DialogTitle>
+                </DialogHeader>
+                <DialogDescription>{data.description}</DialogDescription>
+                <DialogFooter>
+                  <Badge>test</Badge>
+                </DialogFooter>
+              </DialogContent>
+            ) : (
+              <DialogContent></DialogContent>
+            )}
+          </Dialog>
+        </div>
+      </div>
+      <CardFooter className="p-0 px-4 justify-between items-center">
+        <Badge>{new Date().toLocaleDateString()}</Badge>
+        <Badge variant={"secondary"}>{data.id}</Badge>
+      </CardFooter>
+    </CardContent>
+  );
+});
 
 export default Draggable;

@@ -9,12 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AboutRouteImport } from './routes/about'
+import { Route as CreateTaskRouteImport } from './routes/create-task'
 import { Route as IndexRouteImport } from './routes/index'
 
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
+const CreateTaskRoute = CreateTaskRouteImport.update({
+  id: '/create-task',
+  path: '/create-task',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,37 +25,37 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/create-task': typeof CreateTaskRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/create-task': typeof CreateTaskRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/create-task': typeof CreateTaskRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about'
+  fullPaths: '/' | '/create-task'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about'
-  id: '__root__' | '/' | '/about'
+  to: '/' | '/create-task'
+  id: '__root__' | '/' | '/create-task'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
+  CreateTaskRoute: typeof CreateTaskRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
+    '/create-task': {
+      id: '/create-task'
+      path: '/create-task'
+      fullPath: '/create-task'
+      preLoaderRoute: typeof CreateTaskRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,7 +70,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
+  CreateTaskRoute: CreateTaskRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

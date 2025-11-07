@@ -14,24 +14,25 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 import { ThemeProvider } from "./components/theme-provider";
+import { Toaster } from "./components/ui/sonner";
 
 // Create a new router instance
 const router = createRouter({ routeTree });
 
-// Register the router instance for type safety
-declare module "@tanstack/react-router" {
-  interface Register {
-    router: typeof router;
-  }
-}
 const queryClient = new QueryClient();
 
-const elem = document.getElementById("root")!;
+const elem = document.getElementById("root");
 const app = (
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light">
         <RouterProvider router={router} />
+        <Toaster
+          position="top-center"
+          richColors
+          expand={true}
+          toastOptions={{ style: { fontFamily: "var(--font-mono)" } }}
+        />
       </ThemeProvider>
       {process.env.NODE_ENV === "development" && (
         <ReactQueryDevtools initialIsOpen={false} />

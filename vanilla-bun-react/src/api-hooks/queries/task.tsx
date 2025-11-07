@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import API from "./helpers/api-methods";
+import API from "../helpers/api-methods";
 import type { Task } from "@/types";
 
-export const useGetTasks = () => {
+const useGetTasks = () => {
   return useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
@@ -12,3 +12,5 @@ export const useGetTasks = () => {
     staleTime: Infinity,
   });
 };
+
+export { useGetTasks };

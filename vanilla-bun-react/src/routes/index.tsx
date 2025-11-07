@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   DndContext,
   DragOverlay,
+  PointerSensor,
+  useSensor,
   type DragEndEvent,
   type DragMoveEvent,
   type DragStartEvent,
@@ -12,6 +14,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useGetTasks } from "@/api-hooks/queries";
 import { useMoveTask } from "@/api-hooks/mutations";
 import type { Task } from "@/types";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import DroppablePIC from "@/components/page-components/root/droppable-pic";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -44,6 +54,10 @@ function Index() {
     if (!localTasks || localTasks.length === 0) return undefined;
     return localTasks.filter((t) => t.status === "Finished");
   }, [localTasks]);
+
+  const sensors = useSensor(PointerSensor, {
+    activationConstraint: { distance: 1 },
+  });
 
   useEffect(() => {
     if (!isSuccess) return;
@@ -114,20 +128,11 @@ function Index() {
           taskId: Number(active.id),
           status: "Finished",
         });
+      } else if (String(over.id).includes("droppable-seat")) {
+        console.log("seat");
       }
     }
     setActiveTask(undefined);
-  };
-
-  const handleDragMove = (event: DragMoveEvent) => {
-    const { active, over } = event;
-
-    if (active) {
-      setActiveTask({
-        id: Number(active.id),
-        title: active.data.current?.task.title,
-      });
-    }
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -144,52 +149,81 @@ function Index() {
   return (
     <DndContext
       onDragEnd={handleDragEnd}
-      onDragMove={handleDragMove}
       onDragStart={handleDragStart}
+      sensors={[sensors]}
     >
-      {isSuccess && (
-        <div className="grid grid-cols-5 gap-4">
-          <Droppable
-            id={"backlog-container"}
-            data={backlogTasks!}
-            header="Backlogs"
-          />
-          <Droppable
-            id={"inprogress-container"}
-            data={inProgressTasks!}
-            header="In Progress"
-          />
-          <Droppable
-            id={"completed-container"}
-            data={completedTasks!}
-            header="Completed"
-          />
-          <Droppable
-            id={"fortesting-container"}
-            data={forTestingTasks!}
-            header="For Testing"
-          />
-          <Droppable
-            id={"finished-container"}
-            data={finishedTasks!}
-            header="Finished"
-          />
-          <DragOverlay
-            dropAnimation={{
-              duration: 200,
-              easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
-            }}
-          >
-            {activeTask && (
-              <Draggable
-                className="transform rotate-6"
-                gripClassName="cursor-grabbing"
-                data={activeTask!}
+      <div className="space-y-4">
+        <div>
+          {isSuccess && (
+            <div className="grid grid-cols-5 gap-4">
+              <Droppable
+                id={"backlog-container"}
+                data={backlogTasks!}
+                header="Backlogs"
               />
-            )}
-          </DragOverlay>
+              <Droppable
+                id={"inprogress-container"}
+                data={inProgressTasks!}
+                header="In Progress"
+              />
+              <Droppable
+                id={"completed-container"}
+                data={completedTasks!}
+                header="Completed"
+              />
+              <Droppable
+                id={"fortesting-container"}
+                data={forTestingTasks!}
+                header="For Testing"
+              />
+              <Droppable
+                id={"finished-container"}
+                data={finishedTasks!}
+                header="Finished"
+              />
+              <DragOverlay
+                dropAnimation={{
+                  duration: 200,
+                  easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
+                }}
+              >
+                {activeTask && (
+                  <Draggable
+                    className="transform rotate-6"
+                    data={activeTask!}
+                  />
+                )}
+              </DragOverlay>
+            </div>
+          )}
         </div>
-      )}
+        <div className="">
+          <Card>
+            <CardHeader>
+              <CardTitle>Seat Arrangement </CardTitle>
+              <CardDescription>
+                Drag and drop a task to pic to assign
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="bg-background mx-6 py-6 grid grid-cols-2 gap-16">
+              {(() => {
+                return Array.from({ length: 6 }, (_, indextab) => (
+                  <div key={indextab} className="grid grid-cols-3 gap-4">
+                    {Array.from({ length: 6 }, (_, indexseat) => (
+                      <div key={indexseat}>
+                        <DroppablePIC
+                          id={`droppable-seat-${indextab}${indexseat}`}
+                          header="xdd"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ));
+              })()}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </DndContext>
   );
 }

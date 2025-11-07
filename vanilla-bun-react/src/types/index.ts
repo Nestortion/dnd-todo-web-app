@@ -16,3 +16,8 @@ export type Task = {
   isDeleted: boolean;
   status: TaskStatus;
 };
+
+export type PIC = {
+  id: number;
+  name: string;
+};
