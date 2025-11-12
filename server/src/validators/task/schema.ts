@@ -1,4 +1,5 @@
 import z from "zod";
+import { picResponseSchema } from "../pic/schema";
 
 export const taskRequestSchema = z.object({
   title: z.string(),
@@ -17,11 +18,16 @@ export const movetaskRequestSchema = z.object({
   ]),
 });
 
+export const assignTaskRequestSchema = z.object({
+  taskId: z.number(),
+  picId: z.number(),
+});
+
 export const taskResponseSchema = z.object({
   id: z.number(),
   title: z.string(),
   description: z.string(),
-  picId: z.number().optional(),
+  pic: picResponseSchema.optional(),
   dateCreated: z.date(),
   dateCompleted: z.date().optional(),
   isDeleted: z.boolean(),
@@ -34,4 +40,7 @@ export const taskResponseSchema = z.object({
   ]),
 });
 
-
+export type Task = z.infer<typeof taskResponseSchema>;
+export type AssignTaskRequest = z.infer<typeof assignTaskRequestSchema>;
+export type MoveTaskRequest = z.infer<typeof movetaskRequestSchema>;
+export type CreateTaskRequest = z.infer<typeof taskRequestSchema>;
