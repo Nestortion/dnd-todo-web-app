@@ -3,4 +3,5 @@ export type TaskStatus =
   | "In Progress"
   | "Completed"
   | "For Testing"
+  | "Reject"
   | "Finished";

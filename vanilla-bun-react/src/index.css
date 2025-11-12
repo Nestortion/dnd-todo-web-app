@@ -6,6 +6,12 @@
 
 
 :root {
+  --backlog: #A4ABB6;
+  --in-progress: #FCE83A;
+  --completed: #2DCCFF;
+  --testing: #FFB302;
+  --reject: #FF3838;
+  --finished: #56F000;
   --radius: 0.65rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
@@ -75,6 +81,12 @@
 }
 
 @theme inline {
+  --color-backlog: var(--backlog);
+  --color-in-progress: var(--in-progress);
+  --color-completed: var(--completed);
+  --color-testing: var(--testing);
+  --color-reject: var(--reject);
+  --color-finished: var(--finished);
   --font-sans: "Roboto", sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);

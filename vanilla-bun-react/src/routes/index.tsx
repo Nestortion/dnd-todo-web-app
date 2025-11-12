@@ -5,13 +5,11 @@ import {
   PointerSensor,
   useSensor,
   type DragEndEvent,
-  type DragMoveEvent,
-  type DragOverEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
 import Draggable from "@/components/page-components/root/draggable";
 import Droppable from "@/components/page-components/root/droppable";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useGetTasks } from "@/api-hooks/queries";
 import { useAssignTask, useMovePic, useMoveTask } from "@/api-hooks/mutations";
 import DroppablePIC from "@/components/page-components/root/droppable-pic";
@@ -24,7 +22,25 @@ import type { PIC, Task } from "@/types";
 export const Route = createFileRoute("/")({
   component: Index,
 });
+class MyPointerSensor extends PointerSensor {
+  static override activators = [
+    {
+      eventName: "onPointerDown" as const,
+      handler: ({ nativeEvent }: React.PointerEvent) => {
+        if (!nativeEvent.isPrimary || nativeEvent.button !== 0) {
+          return false;
+        }
 
+        if (nativeEvent.target.getAttribute("data-slot") === "dialog-overlay") {
+          // don't allow drag/drop of elements behind the dialog
+          return false;
+        }
+
+        return true;
+      },
+    },
+  ];
+}
 function Index() {
   const { data, isSuccess } = useGetTasks();
   const [activeItem, setActiveItem] = useState<
@@ -59,7 +75,7 @@ function Index() {
     return localTasks.filter((t) => t.status === "Finished");
   }, [localTasks]);
 
-  const sensors = useSensor(PointerSensor, {
+  const sensors = useSensor(MyPointerSensor, {
     activationConstraint: { distance: 1 },
   });
 
@@ -217,27 +233,27 @@ function Index() {
               <Droppable
                 id={"backlog-container"}
                 data={backlogTasks!}
-                header="Backlogs"
+                status="Backlog"
               />
               <Droppable
                 id={"inprogress-container"}
                 data={inProgressTasks!}
-                header="In Progress"
+                status="In Progress"
               />
               <Droppable
                 id={"completed-container"}
                 data={completedTasks!}
-                header="Completed"
+                status="Completed"
               />
               <Droppable
                 id={"fortesting-container"}
                 data={forTestingTasks!}
-                header="For Testing"
+                status="For Testing"
               />
               <Droppable
                 id={"finished-container"}
                 data={finishedTasks!}
-                header="Finished"
+                status="Finished"
               />
               <DragOverlay
                 dropAnimation={{

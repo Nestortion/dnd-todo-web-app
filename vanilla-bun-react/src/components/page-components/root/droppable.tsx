@@ -45,22 +45,49 @@ import { useGetPicList } from "@/api-hooks/queries";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import EmptyComponent from "@/components/state-components/empty";
+import type { TaskStatus } from "@/types/contants";
 
 const Droppable = memo(
   ({
     id,
     data,
-    header,
+    status,
   }: ComponentProps<"div"> & {
     id: string | number;
     data: Array<Task>;
-    header: string;
+    status: TaskStatus;
   }) => {
     const con = useDndContext();
 
     const { isOver, setNodeRef } = useDroppable({
       id,
     });
+
+    let statusColor;
+
+    switch (status) {
+      case "Backlog":
+        statusColor = "bg-backlog";
+        break;
+      case "In Progress":
+        statusColor = "bg-in-progress";
+        break;
+      case "Completed":
+        statusColor = "bg-completed";
+        break;
+      case "For Testing":
+        statusColor = "bg-testing";
+        break;
+      case "Reject":
+        statusColor = "bg-reject";
+        break;
+      case "Finished":
+        statusColor = "bg-finished";
+        break;
+      default:
+        statusColor = "";
+        break;
+    }
 
     return (
       <Card
@@ -73,7 +100,11 @@ const Droppable = memo(
         )}
       >
         <CardHeader className="flex justify-between relative">
-          <CardTitle>{header}</CardTitle>
+          <CardTitle className="flex flex-col gap-2">
+            <div className={`${statusColor} w-full h-2 rounded-md`} />
+
+            {status}
+          </CardTitle>
           {id === "backlog-container" && <CreateTaskDialog />}
         </CardHeader>
         <CardContent className="px-2">
@@ -141,7 +172,7 @@ const CreateTaskDialog = () => {
       <DialogTrigger asChild>
         <Button
           variant={"ghost"}
-          className=" h-fit hover:cursor-pointer absolute -top-2 right-6 rounded-full hover:bg-primary/20 dark:hover:bg-primary/20"
+          className=" h-fit hover:cursor-pointer rounded-full hover:bg-primary/20 dark:hover:bg-primary/20"
         >
           <Plus />
         </Button>
