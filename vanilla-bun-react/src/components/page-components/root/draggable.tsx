@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -15,13 +16,7 @@ import { DialogDescription, DialogTrigger } from "@radix-ui/react-dialog";
 import { memo } from "react";
 
 const Draggable = memo(
-  ({
-    data,
-    className,
-  }: {
-    data: Task | { id: number; title: string };
-    className?: string;
-  }) => {
+  ({ data, className }: { data: Task; className?: string }) => {
     const { setNodeRef, listeners, attributes, isDragging } = useDraggable({
       id: data.id,
       data: {
@@ -47,7 +42,7 @@ const Draggable = memo(
   },
 );
 type DraggableContentProps = {
-  data: Task | { id: number; title: string };
+  data: Task;
 };
 
 const DraggableContent = memo(({ data }: DraggableContentProps) => {
@@ -64,7 +59,7 @@ const DraggableContent = memo(({ data }: DraggableContentProps) => {
                 <p className="w-full wrap-anywhere">{data.title}</p>
               </Button>
             </DialogTrigger>
-            {"description" in data ? (
+            {data ? (
               <DialogContent>
                 <DialogHeader className="text-xl font-bold">
                   <DialogTitle>{data.title}</DialogTitle>
@@ -82,7 +77,18 @@ const DraggableContent = memo(({ data }: DraggableContentProps) => {
       </div>
       <CardFooter className="p-0 px-4 justify-between items-center">
         <Badge>{new Date().toLocaleDateString()}</Badge>
-        <Badge variant={"secondary"}>{data.id}</Badge>
+        <Avatar className="border border-primary">
+          <AvatarImage
+            src={`https://picsum.photos/id/${data.pic.id}/200/300`}
+          />
+          <AvatarFallback>
+            {data.pic.name
+              .split(" ")
+              .map((w) => w[0])
+              .join("")
+              .toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
       </CardFooter>
     </CardContent>
   );

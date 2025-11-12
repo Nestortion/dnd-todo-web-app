@@ -13,12 +13,13 @@ import Draggable from "@/components/page-components/root/draggable";
 import Droppable from "@/components/page-components/root/droppable";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useGetTasks } from "@/api-hooks/queries";
-import { useMovePic, useMoveTask } from "@/api-hooks/mutations";
+import { useAssignTask, useMovePic, useMoveTask } from "@/api-hooks/mutations";
 import DroppablePIC from "@/components/page-components/root/droppable-pic";
 import SeatPlan from "@/components/page-components/root/seat-plan";
 import type { TaskStatus } from "@/types/contants";
 import { DataContext } from "@/context";
 import { toast } from "sonner";
+import type { PIC, Task } from "@/types";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { data, isSuccess } = useGetTasks();
   const [activeItem, setActiveItem] = useState<
-    { id: number; title: string } | { id: number; name: string }
+    { id: number; task: Task } | { id: number; pic: PIC }
   >();
 
   const { localTasks, setLocalTasks, localPics, setLocalPics } =
@@ -35,6 +36,7 @@ function Index() {
 
   const moveTaskMutation = useMoveTask();
   const movePicSeatMutation = useMovePic();
+  const assignTaskMutation = useAssignTask();
 
   const backlogTasks = useMemo(() => {
     if (!localTasks || localTasks.length === 0) return undefined;
@@ -163,6 +165,21 @@ function Index() {
             },
           );
         } else if (active?.data.current?.type === "draggable-task") {
+          toast.promise(
+            assignTaskMutation.mutateAsync({
+              taskId: Number(active.data.current?.task.id),
+              picId: Number(over.data.current?.pic.id),
+            }),
+            {
+              loading: "Assigning task...",
+              success: (data) => {
+                return data.message;
+              },
+              error: (error) => {
+                return error.message;
+              },
+            },
+          );
         }
       }
     }
@@ -176,12 +193,12 @@ function Index() {
       if (String(active.id).includes("draggable-seat")) {
         setActiveItem({
           id: Number(active.data.current?.pic.id),
-          name: active.data.current?.pic.name,
+          pic: active.data.current?.pic,
         });
       } else {
         setActiveItem({
           id: Number(active.id),
-          title: active.data.current?.task.title,
+          task: active.data.current?.task,
         });
       }
     }
@@ -228,15 +245,15 @@ function Index() {
                   easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
                 }}
               >
-                {activeItem && "title" in activeItem ? (
+                {activeItem && "task" in activeItem ? (
                   <Draggable
                     className="transform rotate-6 opacity-70"
-                    data={activeItem}
+                    data={activeItem.task}
                   />
                 ) : (
                   <DroppablePIC
                     id={activeItem?.id.toString()!}
-                    pic={activeItem}
+                    pic={activeItem?.pic}
                   />
                 )}
               </DragOverlay>

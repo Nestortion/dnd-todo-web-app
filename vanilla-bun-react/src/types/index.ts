@@ -12,7 +12,7 @@ export type Task = {
   description: string;
   dateCreated: Date;
   dateCompleted?: Date;
-  picId?: number;
+  pic: PIC;
   isDeleted: boolean;
   status: TaskStatus;
 };

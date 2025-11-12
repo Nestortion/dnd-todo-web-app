@@ -48,7 +48,7 @@ const DroppablePIC = memo(
             isOver // && String(con.active?.id).includes("draggable-seat")
               ? "bg-primary"
               : "bg-secondary",
-            "h-fit p-0 shadow-xl w-fit rounded-full",
+            "h-fit p-0 shadow-xl w-fit rounded-full hover:bg-primary hover:cursor-pointer",
           )}
         >
           <CardHeader hidden className="flex justify-between relative">
