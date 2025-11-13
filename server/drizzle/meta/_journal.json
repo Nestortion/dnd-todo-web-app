@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1763008423013,
+      "tag": "0000_misty_metal_master",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1763011868122,
+      "tag": "0001_complex_giant_girl",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1763011943753,
+      "tag": "0002_noisy_thunderbolts",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1763012130759,
+      "tag": "0003_loose_falcon",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1763012787766,
+      "tag": "0004_next_smasher",
+      "breakpoints": true
+    }
+  ]
+}

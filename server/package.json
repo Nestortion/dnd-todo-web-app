@@ -3,18 +3,27 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "dev": "bun --watch src/index.ts"
+    "dev": "bun -b --bun --watch src/index.ts",
+    "db:generate": "bunx -b drizzle-kit generate",
+    "db:push": "bunx drizzle-kit push",
+    "db:pull": "bunx drizzle-kit pull",
+    "db:migrate": "bunx --bun -b drizzle-kit migrate"
   },
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "drizzle-kit": "^0.31.6",
+    "tsx": "^4.20.6"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.4",
+    "drizzle-orm": "^0.44.7",
+    "drizzle-zod": "^0.8.3",
     "hono": "^4.10.4",
+    "mysql2": "^3.15.3",
     "zod": "^4.1.12"
   }
 }

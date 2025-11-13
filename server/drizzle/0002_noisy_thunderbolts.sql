@@ -1,0 +1,1 @@
+ALTER TABLE `tasks` ADD CONSTRAINT `tasks_pic_id_pics_id_fk` FOREIGN KEY (`pic_id`) REFERENCES `pics`(`id`) ON DELETE no action ON UPDATE no action;

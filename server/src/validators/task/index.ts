@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import {
   assignTaskRequestSchema,
   movetaskRequestSchema,
+  taskIdParamSchema,
   taskRequestSchema,
 } from "./schema";
 
@@ -12,6 +13,14 @@ const getTaskByIdValidator = zValidator("json", taskRequestSchema, (res, c) => {
 const createTaskValidator = zValidator("json", taskRequestSchema, (res, c) => {
   if (!res.success) return c.json(res.error, 400);
 });
+
+const taskIdParamValidator = zValidator(
+  "param",
+  taskIdParamSchema,
+  (res, c) => {
+    if (!res.success) return c.json(res.error, 400);
+  },
+);
 
 const moveTaskValidator = zValidator(
   "json",
@@ -34,4 +43,5 @@ export {
   createTaskValidator,
   moveTaskValidator,
   assignTaskvalidator,
+  taskIdParamValidator,
 };

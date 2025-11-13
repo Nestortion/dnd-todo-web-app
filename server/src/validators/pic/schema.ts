@@ -4,7 +4,7 @@ export const createPicSchema = z.object({
   name: z.string(),
   tableId: z.number(),
   seatNumber: z.number(),
-  image: z.string(),
+  profileImage: z.string(),
 });
 
 export const picResponseSchema = z.object({
@@ -14,6 +14,8 @@ export const picResponseSchema = z.object({
   seatNumber: z.number(),
   image: z.string(),
 });
+
+export const picIdParamSchema = z.object({ id: z.number() });
 
 export const movePicSchema = z.object({
   targetPicId: z.number(),

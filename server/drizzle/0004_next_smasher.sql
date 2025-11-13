@@ -1,0 +1,1 @@
+ALTER TABLE `pics` RENAME COLUMN `seat_id` TO `seat_number`;

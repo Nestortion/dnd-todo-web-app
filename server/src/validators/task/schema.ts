@@ -40,6 +40,8 @@ export const taskResponseSchema = z.object({
   ]),
 });
 
+export const taskIdParamSchema = z.object({ id: z.number() });
+
 export type Task = z.infer<typeof taskResponseSchema>;
 export type AssignTaskRequest = z.infer<typeof assignTaskRequestSchema>;
 export type MoveTaskRequest = z.infer<typeof movetaskRequestSchema>;
