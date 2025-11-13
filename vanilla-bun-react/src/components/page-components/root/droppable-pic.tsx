@@ -56,7 +56,7 @@ const DroppablePIC = memo(
           </CardHeader>
           <CardContent className="p-2 h-fit">
             <img
-              src={`https://picsum.photos/id/${pic?.id}/200/300`}
+              src={pic?.profileImage}
               className="aspect-square w-32 rounded-full text-center"
               alt={pic?.id.toString() ?? ""}
             />

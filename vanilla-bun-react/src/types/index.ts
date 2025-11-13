@@ -22,5 +22,5 @@ export type PIC = {
   name: string;
   tableId: number;
   seatNumber: number;
-  image?: string;
+  profileImage?: string;
 };

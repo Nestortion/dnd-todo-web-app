@@ -6,7 +6,7 @@ const useGetTasks = () => {
   return useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
-      const data = await API.get<{ tasks: Array<Task> }>("/task/");
+      const data = await API.get<Array<Task>>("/task/");
       return data;
     },
     staleTime: Infinity,

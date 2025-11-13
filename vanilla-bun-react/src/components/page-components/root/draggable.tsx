@@ -102,19 +102,21 @@ const DraggableContent = memo(({ data }: DraggableContentProps) => {
                 <DialogFooter className="sm:justify-between w-full">
                   <Badge>{new Date().toLocaleDateString()}</Badge>
                   <div className="flex space-x-2">
-                    <Badge variant={"outline"}>{data.pic.name}</Badge>
-                    <Avatar className="border border-primary">
-                      <AvatarImage
-                        src={`https://picsum.photos/id/${data.pic.id}/200/300`}
-                      />
-                      <AvatarFallback>
-                        {data.pic.name
-                          .split(" ")
-                          .map((w) => w[0])
-                          .join("")
-                          .toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                    {data.pic && (
+                      <>
+                        <Badge variant={"outline"}>{data.pic.name}</Badge>
+                        <Avatar className="border border-primary">
+                          <AvatarImage src={data.pic.profileImage} />
+                          <AvatarFallback>
+                            {data.pic.name
+                              .split(" ")
+                              .map((w) => w[0])
+                              .join("")
+                              .toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      </>
+                    )}
                   </div>
                 </DialogFooter>
               </DialogContent>
@@ -126,18 +128,18 @@ const DraggableContent = memo(({ data }: DraggableContentProps) => {
       </div>
       <CardFooter className="p-0 px-4 justify-between items-center">
         <Badge>{new Date().toLocaleDateString()}</Badge>
-        <Avatar className="border border-primary">
-          <AvatarImage
-            src={`https://picsum.photos/id/${data.pic.id}/200/300`}
-          />
-          <AvatarFallback>
-            {data.pic.name
-              .split(" ")
-              .map((w) => w[0])
-              .join("")
-              .toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        {data.pic && (
+          <Avatar className="border border-primary">
+            <AvatarImage src={data.pic.profileImage} />
+            <AvatarFallback>
+              {data.pic.name
+                .split(" ")
+                .map((w) => w[0])
+                .join("")
+                .toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        )}
       </CardFooter>
     </CardContent>
   );

@@ -6,7 +6,7 @@ const useGetPicList = () => {
   return useQuery({
     queryKey: ["pic-list"],
     queryFn: async () => {
-      const data = await API.get<{ picList: Array<PIC> }>("/pic/");
+      const data = await API.get<Array<PIC>>("/pic/");
       return data;
     },
     staleTime: Infinity,

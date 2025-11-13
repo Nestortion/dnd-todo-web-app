@@ -31,7 +31,9 @@ class MyPointerSensor extends PointerSensor {
           return false;
         }
 
-        if (nativeEvent.target.getAttribute("data-slot") === "dialog-overlay") {
+        if (
+          nativeEvent.target?.getAttribute("data-slot") === "dialog-overlay"
+        ) {
           // don't allow drag/drop of elements behind the dialog
           return false;
         }
@@ -81,7 +83,7 @@ function Index() {
 
   useEffect(() => {
     if (!isSuccess) return;
-    setLocalTasks(data.tasks);
+    setLocalTasks(data);
   }, [data, isSuccess]);
 
   const updateTaskStatus = async (

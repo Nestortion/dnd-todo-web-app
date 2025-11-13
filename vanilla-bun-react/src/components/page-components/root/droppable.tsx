@@ -163,9 +163,7 @@ const CreateTaskDialog = () => {
     <Dialog
       open={dialogOpen}
       onOpenChange={(e) => {
-        if (!e) {
-          form.reset();
-        }
+        form.reset();
         setDialogOpen(e);
       }}
     >
@@ -264,9 +262,8 @@ const CreateTaskDialog = () => {
                       >
                         {isSuccess ? (
                           <>
-                            {picList.picList.find(
-                              (p) => p.id === field.state.value,
-                            )?.name ?? (
+                            {picList.find((p) => p.id === field.state.value)
+                              ?.name ?? (
                               <p className="text-muted-foreground">
                                 Assignee...
                               </p>
@@ -277,10 +274,10 @@ const CreateTaskDialog = () => {
                         )}
                       </SelectTrigger>
                       <SelectContent>
-                        {isSuccess && picList.picList.length > 0 ? (
+                        {isSuccess && picList.length > 0 ? (
                           <SelectGroup>
                             <SelectLabel>Assignees</SelectLabel>
-                            {picList.picList.map((pic) => (
+                            {picList.map((pic) => (
                               <SelectItem value={String(pic.id)} key={pic.id}>
                                 {pic.name}
                               </SelectItem>

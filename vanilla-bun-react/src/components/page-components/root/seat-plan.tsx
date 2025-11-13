@@ -30,7 +30,7 @@ const SeatPlan = () => {
 
   useEffect(() => {
     if (!isSuccess) return;
-    setLocalPics(picList.picList);
+    setLocalPics(picList);
   }, [picList, isSuccess]);
   return (
     <Card>

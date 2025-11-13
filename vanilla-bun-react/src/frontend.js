@@ -28,7 +28,7 @@ const app = (
       <ThemeProvider defaultTheme="light">
         <RouterProvider router={router} />
         <Toaster
-          position="top-center"
+          position="top-right"
           richColors
           expand={true}
           toastOptions={{ style: { fontFamily: "var(--font-mono)" } }}
