@@ -6,6 +6,7 @@
 
 
 :root {
+  --header-grid: 4fr 1fr;
   --backlog: #A4ABB6;
   --in-progress: #FCE83A;
   --completed: #2DCCFF;

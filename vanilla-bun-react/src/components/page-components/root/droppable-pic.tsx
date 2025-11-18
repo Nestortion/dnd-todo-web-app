@@ -1,8 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useDndContext, useDraggable, useDroppable } from "@dnd-kit/core";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { memo, type ComponentProps } from "react";
-import defaultPic from "@/assets/default-picture.webp";
 import type { PIC } from "@/types";
 
 const DroppablePIC = memo(
@@ -10,11 +9,12 @@ const DroppablePIC = memo(
     id,
     pic,
     className,
+    seatTableId,
   }: ComponentProps<"div"> & {
     id: string | number;
     pic?: PIC;
+    seatTableId?: number;
   }) => {
-    const con = useDndContext();
     const {
       setNodeRef: dragRef,
       listeners,
@@ -22,13 +22,13 @@ const DroppablePIC = memo(
       isDragging,
     } = useDraggable({
       id: `draggable-seat-${id}`,
-      data: { type: "draggable", pic },
+      data: { type: "draggable", pic: { ...pic, seatTableId } },
     });
 
     const { isOver, setNodeRef: dropRef } = useDroppable({
       id: `droppable-seat-${id}`,
       disabled: isDragging,
-      data: { type: "droppable", pic },
+      data: { type: "droppable", pic: { ...pic, seatTableId } },
     });
 
     return (

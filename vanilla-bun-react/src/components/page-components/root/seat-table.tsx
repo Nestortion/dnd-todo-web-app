@@ -57,7 +57,11 @@ const SeatTable = memo(
                 key={p.id}
                 className="flex flex-col items-center gap-2 text-center"
               >
-                <DroppablePIC id={`${p.seatTableId}${p.seatNumber}`} pic={p} />
+                <DroppablePIC
+                  id={`${data.id}${p.seatNumber}`}
+                  pic={p}
+                  seatTableId={data.id}
+                />
                 <Badge variant={"outline"}>{p.name}</Badge>
               </div>
             ))}

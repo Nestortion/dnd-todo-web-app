@@ -20,7 +20,6 @@ export type Task = {
 export type PIC = {
   id: number;
   name: string;
-  seatTableId: number;
   seatNumber: number;
   profileImage?: string;
 };
@@ -40,3 +39,5 @@ export type Project = {
   createBy: string;
   createDate: Date;
 };
+
+export * from "./classes";

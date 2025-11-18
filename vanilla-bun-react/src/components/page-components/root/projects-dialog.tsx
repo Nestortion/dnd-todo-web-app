@@ -15,8 +15,9 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { useNavigate } from "@tanstack/react-router";
-import { CornerDownRight, SearchIcon } from "lucide-react";
+import { CornerDownRight, FolderPlus, SearchIcon } from "lucide-react";
 import { useState, type FC } from "react";
+import CreateProjectDialog from "./create-project-dialog";
 
 const ProjectsDialog: FC = () => {
   const navigate = useNavigate();
@@ -31,8 +32,9 @@ const ProjectsDialog: FC = () => {
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogHeader className="">
+        <DialogHeader className="flex-row gap-2 items-center">
           <DialogTitle>Project List</DialogTitle>
+          <CreateProjectDialog setParentOpen={setOpenDialog} />
         </DialogHeader>
         <DialogDescription aria-hidden hidden />
         <div className="flex flex-col">
@@ -61,7 +63,6 @@ const ProjectsDialog: FC = () => {
                 </div>
               ))}
         </div>
-
         <DialogFooter>
           <InputGroup>
             <InputGroupInput

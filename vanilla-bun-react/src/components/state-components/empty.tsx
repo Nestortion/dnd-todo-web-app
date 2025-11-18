@@ -1,20 +1,28 @@
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 
 type Props = {
   className?: string;
   title: string;
   description: string;
   icon: ReactElement;
+  content?: ReactNode;
 };
 
-const EmptyComponent = ({ className, title, description, icon }: Props) => {
+const EmptyComponent = ({
+  className,
+  title,
+  description,
+  icon,
+  content,
+}: Props) => {
   return (
     <Empty className={className}>
       <EmptyHeader>
@@ -22,6 +30,7 @@ const EmptyComponent = ({ className, title, description, icon }: Props) => {
         <EmptyTitle className="text-primary">{title}</EmptyTitle>
         <EmptyDescription>{description}</EmptyDescription>
       </EmptyHeader>
+      {content && <EmptyContent>{content}</EmptyContent>}
     </Empty>
   );
 };
