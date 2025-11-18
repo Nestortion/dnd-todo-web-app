@@ -16,7 +16,9 @@ export const seatTablesTable = mysqlTable("seat_tables", {
   createBy: varchar("create_by", { length: 255 }).notNull(),
   createDate: datetime("create_date", { mode: "string" }).default(sql`now()`),
   isDeleted: boolean("is_deleted").default(false),
-  projectId: int("project_id").references(() => projectsTable.id),
+  projectId: int("project_id")
+    .references(() => projectsTable.id)
+    .notNull(),
 });
 
 export const seatTablesRelations = relations(seatTablesTable, ({ one }) => ({

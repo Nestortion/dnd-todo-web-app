@@ -10,4 +10,9 @@ const poolConnection = mysql.createPool({
   database: Bun.env.DB_DATABASE,
 });
 
-export const db = drizzle({ schema, client: poolConnection, mode: "default" });
+export const db = drizzle({
+  schema,
+  client: poolConnection,
+  mode: "default",
+  // logger: true,
+});

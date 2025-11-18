@@ -4,6 +4,7 @@ import { picResponseSchema } from "../pic/schema";
 export const taskRequestSchema = z.object({
   title: z.string(),
   description: z.string(),
+  projectId: z.number(),
   picId: z.number().optional(),
 });
 
@@ -14,6 +15,7 @@ export const movetaskRequestSchema = z.object({
     z.literal("In Progress"),
     z.literal("Completed"),
     z.literal("For Testing"),
+    z.literal("Reject"),
     z.literal("Finished"),
   ]),
 });
@@ -37,6 +39,7 @@ export const taskResponseSchema = z.object({
     z.literal("Completed"),
     z.literal("For Testing"),
     z.literal("Finished"),
+    z.literal("Reject"),
   ]),
 });
 

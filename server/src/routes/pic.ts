@@ -6,7 +6,7 @@ import {
 } from "../validators/pic";
 import { db } from "../db";
 import { taskIdParamValidator } from "../validators/task";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq, getTableColumns, inArray } from "drizzle-orm";
 import { picsTable, picToSeatTables, seatTablesTable } from "../db/schemas";
 
 const picRoutes = new Hono();
@@ -15,16 +15,33 @@ const picRoutes = new Hono();
 picRoutes.get("/", getAllQueryValidator, async (c) => {
   const query = c.req.valid("query");
   try {
-    const tables = await db.query.seatTablesTable.findMany({
-      where: and(
-        query.projectId
-          ? eq(seatTablesTable.projectId, query.projectId)
-          : undefined,
-        query.seatTableId
-          ? eq(seatTablesTable.id, Number(query.seatTableId))
-          : undefined,
-      ),
-    });
+    const { isDeleted, ...picDetails } = getTableColumns(picsTable);
+    const pics = await db
+      .selectDistinct({
+        ...picDetails,
+        seatNumber: picToSeatTables.seatNumber,
+      })
+      .from(picToSeatTables)
+      .innerJoin(
+        seatTablesTable,
+        and(
+          query.projectId
+            ? eq(seatTablesTable.projectId, query.projectId)
+            : undefined,
+          query.seatTableId
+            ? eq(picToSeatTables.seatTableId, query.seatTableId)
+            : undefined,
+        ),
+      )
+      .innerJoin(picsTable, eq(picsTable.id, picToSeatTables.picId))
+      .orderBy(asc(picToSeatTables.seatNumber));
+
+    return c.json(
+      pics.map((p) => ({
+        ...p,
+        profileImage: `https://avatar.iran.liara.run/public/${p.id}`,
+      })),
+    );
   } catch (error) {
     console.log(error);
     return c.json({ message: "Error getting pics" }, 500);
@@ -59,6 +76,7 @@ picRoutes.post("/", createPicValidator, async (c) => {
   }
 });
 
+// move pic
 picRoutes.put("/", movePicValidator, async (c) => {
   const data = c.req.valid("json");
   try {
@@ -66,13 +84,13 @@ picRoutes.put("/", movePicValidator, async (c) => {
       const target = await tx.query.picToSeatTables.findFirst({
         where: and(
           eq(picToSeatTables.seatTableId, data.target.seatTableId),
-          eq(picToSeatTables.picId, data.target.id),
+          eq(picToSeatTables.picId, data.target.picId),
         ),
       });
       const current = await tx.query.picToSeatTables.findFirst({
         where: and(
           eq(picToSeatTables.seatTableId, data.current.seatTableId),
-          eq(picToSeatTables.picId, data.current.id),
+          eq(picToSeatTables.picId, data.current.picId),
         ),
       });
 

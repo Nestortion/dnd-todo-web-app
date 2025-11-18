@@ -25,11 +25,11 @@ export const getAllQuerySchema = z.object({
 
 export const movePicSchema = z.object({
   target: z.object({
-    id: z.number(),
+    picId: z.number(),
     seatTableId: z.number(),
   }),
   current: z.object({
-    id: z.number(),
+    picId: z.number(),
     seatTableId: z.number(),
   }),
 });

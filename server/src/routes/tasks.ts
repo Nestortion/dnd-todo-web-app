@@ -53,6 +53,7 @@ taskRoutes.post("/", createTaskValidator, async (c) => {
 
     return c.json({ message: "Success" });
   } catch (error) {
+    console.log(error);
     return c.json({ message: "Error creating task" }, 500);
   }
 });

@@ -15,8 +15,8 @@ app.route("/task/", taskRoutes);
 
 app.route("/pic/", picRoutes);
 
-app.route("/projects/", projectRoutes);
+app.route("/project/", projectRoutes);
 
-app.route("/seat-tables/", seatTableRoutes);
+app.route("/seat-table/", seatTableRoutes);
 
 export default { port: process.env.PORT, fetch: app.fetch };
