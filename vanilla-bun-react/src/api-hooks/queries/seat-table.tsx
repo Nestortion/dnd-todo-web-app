@@ -7,8 +7,7 @@ const useGetSeatTables = (projectId?: number) => {
     queryKey: ["seat-tables", projectId],
     queryFn: async () => {
       const data = await API.get<Array<PicTable>>(
-        "/seat-tables/?" +
-          new URLSearchParams({ projectId: String(projectId) }),
+        "/seat-table/?" + new URLSearchParams({ projectId: String(projectId) }),
       );
       return data;
     },

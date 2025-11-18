@@ -9,7 +9,7 @@ const useCreatePic = () => {
       const response = await API.put<
         { message: string },
         { taskId: number; status: TaskStatus }
-      >("/task/", payload);
+      >("/seat-table/", payload);
 
       return response;
     },

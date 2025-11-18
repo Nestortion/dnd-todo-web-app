@@ -25,6 +25,7 @@ export const useCreateTask = () => {
     mutationFn: async (payload: {
       title: string;
       description: string;
+      projectId: number;
       picId?: number;
     }) => {
       const response = await API.post<
@@ -32,6 +33,7 @@ export const useCreateTask = () => {
         {
           title: string;
           description: string;
+          projectId: number;
           picId?: number;
         }
       >("/task/", payload);
