@@ -1,0 +1,1 @@
+ALTER TABLE `seat_tables` MODIFY COLUMN `project_id` int NOT NULL;
