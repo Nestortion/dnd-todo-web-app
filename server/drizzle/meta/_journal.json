@@ -15,6 +15,13 @@
       "when": 1763433568726,
       "tag": "0001_deep_thaddeus_ross",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1763525599428,
+      "tag": "0002_solid_cardiac",
+      "breakpoints": true
     }
   ]
 }
