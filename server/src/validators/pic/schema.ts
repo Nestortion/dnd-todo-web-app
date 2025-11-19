@@ -23,15 +23,26 @@ export const getAllQuerySchema = z.object({
   seatTableId: z.coerce.number().optional(),
 });
 
+export const getUnassignedPicSchema = z.object({
+  projectId: z.coerce.number(),
+});
+
 export const movePicSchema = z.object({
-  target: z.object({
-    picId: z.number(),
-    seatTableId: z.number(),
-  }),
+  target: z
+    .object({
+      picId: z.number(),
+      seatTableId: z.number(),
+    })
+    .optional(),
   current: z.object({
     picId: z.number(),
     seatTableId: z.number(),
   }),
+  type: z.union([
+    z.literal("assign"),
+    z.literal("unassign"),
+    z.literal("move"),
+  ]),
 });
 
 export type PIC = z.infer<typeof picResponseSchema>;

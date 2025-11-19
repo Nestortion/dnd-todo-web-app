@@ -8,6 +8,7 @@ import {
   varchar,
 } from "drizzle-orm/mysql-core";
 import { projectsTable } from "./project";
+import { picToSeatTables } from "./pic-to-seat-tables";
 
 export const seatTablesTable = mysqlTable("seat_tables", {
   id: int().autoincrement().primaryKey(),
@@ -21,9 +22,13 @@ export const seatTablesTable = mysqlTable("seat_tables", {
     .notNull(),
 });
 
-export const seatTablesRelations = relations(seatTablesTable, ({ one }) => ({
-  project: one(projectsTable, {
-    fields: [seatTablesTable.projectId],
-    references: [projectsTable.id],
+export const seatTablesRelations = relations(
+  seatTablesTable,
+  ({ one, many }) => ({
+    project: one(projectsTable, {
+      fields: [seatTablesTable.projectId],
+      references: [projectsTable.id],
+    }),
+    picToSeatTables: many(picToSeatTables),
   }),
-}));
+);

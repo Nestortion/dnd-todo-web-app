@@ -2,12 +2,22 @@ import { Hono } from "hono";
 import {
   createPicValidator,
   getAllQueryValidator,
+  getUnassignedPicQueryValidator,
   movePicValidator,
 } from "../validators/pic";
 import { db } from "../db";
 import { taskIdParamValidator } from "../validators/task";
-import { and, asc, eq, getTableColumns, inArray } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  getTableColumns,
+  inArray,
+  isNull,
+} from "drizzle-orm";
 import { picsTable, picToSeatTables, seatTablesTable } from "../db/schemas";
+import { picToProjectsTables } from "../db/schemas/pic-to-projects";
 
 const picRoutes = new Hono();
 
@@ -16,25 +26,35 @@ picRoutes.get("/", getAllQueryValidator, async (c) => {
   const query = c.req.valid("query");
   try {
     const { isDeleted, ...picDetails } = getTableColumns(picsTable);
-    const pics = await db
-      .selectDistinct({
-        ...picDetails,
-        seatNumber: picToSeatTables.seatNumber,
-      })
-      .from(picToSeatTables)
-      .innerJoin(
-        seatTablesTable,
-        and(
-          query.projectId
-            ? eq(seatTablesTable.projectId, query.projectId)
-            : undefined,
-          query.seatTableId
-            ? eq(picToSeatTables.seatTableId, query.seatTableId)
-            : undefined,
-        ),
-      )
-      .innerJoin(picsTable, eq(picsTable.id, picToSeatTables.picId))
-      .orderBy(asc(picToSeatTables.seatNumber));
+
+    let pics;
+
+    if (!query.seatTableId) {
+      pics = await db
+        .selectDistinct({
+          ...picDetails,
+        })
+        .from(picToProjectsTables)
+        .innerJoin(picsTable, eq(picsTable.id, picToProjectsTables.picId));
+    } else {
+      pics = await db
+        .selectDistinct({
+          ...picDetails,
+          seatNumber: picToSeatTables.seatNumber,
+        })
+        .from(picToSeatTables)
+        .innerJoin(
+          seatTablesTable,
+          and(
+            query.projectId
+              ? eq(seatTablesTable.projectId, query.projectId)
+              : undefined,
+            eq(picToSeatTables.seatTableId, query.seatTableId),
+          ),
+        )
+        .innerJoin(picsTable, eq(picsTable.id, picToSeatTables.picId))
+        .orderBy(asc(picToSeatTables.seatNumber));
+    }
 
     return c.json(
       pics.map((p) => ({
@@ -47,6 +67,43 @@ picRoutes.get("/", getAllQueryValidator, async (c) => {
     return c.json({ message: "Error getting pics" }, 500);
   }
 });
+
+// get all unassigned pic by projectId
+picRoutes.get(
+  "/unassigned/:projectId",
+  getUnassignedPicQueryValidator,
+  async (c) => {
+    const param = c.req.valid("param");
+    try {
+      const { isDeleted, ...picDetails } = getTableColumns(picsTable);
+
+      let pics = await db
+        .selectDistinct({
+          ...picDetails,
+        })
+        .from(picToProjectsTables)
+        .leftJoin(
+          picToSeatTables,
+          and(
+            eq(picToSeatTables.picId, picToProjectsTables.picId),
+            eq(picToProjectsTables.projectId, param.projectId),
+          ),
+        )
+        .innerJoin(picsTable, eq(picsTable.id, picToProjectsTables.picId))
+        .where(isNull(picToSeatTables.id));
+
+      return c.json(
+        pics.map((p) => ({
+          ...p,
+          profileImage: `https://avatar.iran.liara.run/public/${p.id}`,
+        })),
+      );
+    } catch (error) {
+      console.log(error);
+      return c.json({ message: "Error getting pics" }, 500);
+    }
+  },
+);
 
 // chain for id route
 picRoutes.get("/:id", taskIdParamValidator, async (c) => {
@@ -81,36 +138,77 @@ picRoutes.put("/", movePicValidator, async (c) => {
   const data = c.req.valid("json");
   try {
     await db.transaction(async (tx) => {
-      const target = await tx.query.picToSeatTables.findFirst({
-        where: and(
-          eq(picToSeatTables.seatTableId, data.target.seatTableId),
-          eq(picToSeatTables.picId, data.target.picId),
-        ),
-      });
-      const current = await tx.query.picToSeatTables.findFirst({
-        where: and(
-          eq(picToSeatTables.seatTableId, data.current.seatTableId),
-          eq(picToSeatTables.picId, data.current.picId),
-        ),
-      });
+      if (data.type === "assign") {
+        const existingSeatTable = await tx
+          .select({ seatTableId: picToSeatTables.id })
+          .from(picToProjectsTables)
+          .innerJoin(
+            picToSeatTables,
+            eq(picToProjectsTables.picId, picToSeatTables.picId),
+          )
+          .where(eq(picToProjectsTables.picId, data.current.picId))
+          .limit(1);
 
-      // update target
-      await tx
-        .update(picToSeatTables)
-        .set({
-          seatTableId: current!.seatTableId,
-          seatNumber: current!.seatNumber,
-        })
-        .where(eq(picToSeatTables.id, target!.id));
+        if (existingSeatTable[0]) {
+          await tx
+            .delete(picToSeatTables)
+            .where(eq(picToSeatTables.id, existingSeatTable[0].seatTableId));
+        }
 
-      // update current
-      await tx
-        .update(picToSeatTables)
-        .set({
-          seatTableId: target!.seatTableId,
-          seatNumber: target!.seatNumber,
-        })
-        .where(eq(picToSeatTables.id, current!.id));
+        const currentSeatNumber = await tx
+          .select()
+          .from(picToSeatTables)
+          .where(eq(picToSeatTables.seatTableId, data.current.seatTableId))
+          .orderBy(desc(picToSeatTables.seatNumber))
+          .limit(1);
+
+        await tx.insert(picToSeatTables).values({
+          picId: data.current.picId,
+          seatTableId: data.current.seatTableId,
+          seatNumber: currentSeatNumber[0]
+            ? currentSeatNumber[0].seatNumber + 1
+            : 1,
+        });
+      } else if (data.type === "unassign") {
+        await tx
+          .delete(picToSeatTables)
+          .where(
+            and(
+              eq(picToSeatTables.picId, data.current.picId),
+              eq(picToSeatTables.seatTableId, data.current.seatTableId),
+            ),
+          );
+      } else if (data.type === "move") {
+        const target = await tx.query.picToSeatTables.findFirst({
+          where: and(
+            eq(picToSeatTables.seatTableId, data.target!.seatTableId),
+            eq(picToSeatTables.picId, data.target!.picId),
+          ),
+        });
+        const current = await tx.query.picToSeatTables.findFirst({
+          where: and(
+            eq(picToSeatTables.seatTableId, data.current.seatTableId),
+            eq(picToSeatTables.picId, data.current.picId),
+          ),
+        });
+        // update target
+        await tx
+          .update(picToSeatTables)
+          .set({
+            seatTableId: current!.seatTableId,
+            seatNumber: current!.seatNumber,
+          })
+          .where(eq(picToSeatTables.id, target!.id));
+
+        // update current
+        await tx
+          .update(picToSeatTables)
+          .set({
+            seatTableId: target!.seatTableId,
+            seatNumber: target!.seatNumber,
+          })
+          .where(eq(picToSeatTables.id, current!.id));
+      }
     });
 
     return c.json({ message: "success" });

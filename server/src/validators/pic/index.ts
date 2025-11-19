@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import {
   createPicSchema,
   getAllQuerySchema,
+  getUnassignedPicSchema,
   movePicSchema,
   picIdParamSchema,
 } from "./schema";
@@ -25,6 +26,14 @@ export const picIdParamValidator = zValidator(
 export const getAllQueryValidator = zValidator(
   "query",
   getAllQuerySchema,
+  (res, c) => {
+    if (!res.success) return c.json(res.error, 400);
+  },
+);
+
+export const getUnassignedPicQueryValidator = zValidator(
+  "param",
+  getUnassignedPicSchema,
   (res, c) => {
     if (!res.success) return c.json(res.error, 400);
   },

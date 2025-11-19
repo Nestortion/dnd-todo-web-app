@@ -8,6 +8,8 @@ import {
 } from "drizzle-orm/mysql-core";
 import { tasksTable } from "./task";
 import { projectsTable } from "./project";
+import { picToSeatTables } from "./pic-to-seat-tables";
+import { picToProjectsTables } from "./pic-to-projects";
 
 export const picsTable = mysqlTable("pics", {
   id: int().autoincrement().primaryKey(),
@@ -26,4 +28,6 @@ export const picRelations = relations(picsTable, ({ one, many }) => ({
     fields: [picsTable.projectId],
     references: [projectsTable.id],
   }),
+  picToSeatTables: many(picToSeatTables),
+  picToProjects: many(picToProjectsTables),
 }));
