@@ -21,7 +21,17 @@ import { formatDate } from "@/helpers";
 import ProjectMembersDropdown from "@/components/page-components/root/project-members-dropdown";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
+import {
+  Columns2,
+  FoldVertical,
+  Grid,
+  Settings,
+  UnfoldVertical,
+} from "lucide-react";
+import { ToggleGroup } from "@/components/ui/toggle-group";
+import { Toggle } from "@/components/ui/toggle";
+import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
 
 export const Route = createFileRoute("/$projectId/")({
   component: Index,
@@ -40,6 +50,8 @@ function Index() {
     { id: number; task: Task } | { id: number; pic: PIC }
   >();
   const { localTasks, setLocalTasks } = useContext(DataContext)!;
+  const [isExpanded, setIsExpanded] = useState<boolean>(true);
+  const [isGridView, setIsGridView] = useState<boolean>(false);
 
   // memoized variables
   const backlogTasks = useMemo(() => {
@@ -208,7 +220,7 @@ function Index() {
       sensors={[sensors]}
     >
       {currentProjectIsSuccess && (
-        <div className="grid grid-cols-(--header-grid)">
+        <div className="grid grid-cols-(--header-grid) gap-4">
           <div className="flex flex-col gap-2">
             {/* heading */}
             <p className="text-2xl font-bold text-primary">
@@ -238,39 +250,75 @@ function Index() {
           </div>
         </div>
       )}
-      <div className="space-y-4">
+      <Separator orientation="horizontal" className="my-4" />
+      <div>
+        <div className="flex justify-end">
+          <Toggle
+            aria-label="Toggle Expand"
+            size="lg"
+            variant="outline"
+            pressed={isGridView}
+            className="rounded-none rounded-l-md"
+            onPressedChange={setIsGridView}
+          >
+            {isGridView ? <Columns2 /> : <Grid />}
+          </Toggle>
+          <Toggle
+            aria-label="Toggle Expand"
+            size="lg"
+            variant="outline"
+            className="rounded-none rounded-r-md"
+            pressed={isExpanded}
+            onPressedChange={setIsExpanded}
+          >
+            {isExpanded ? <FoldVertical /> : <UnfoldVertical />}
+          </Toggle>
+        </div>
         {tasksIsSuccess && (
-          <ScrollArea orientation="horizontal">
-            <div className="flex gap-4 py-6">
+          <ScrollArea orientation="horizontal" className="w-full">
+            <div
+              className={cn(
+                isGridView
+                  ? "grid grid-cols-5 gap-2 space-y-4"
+                  : "flex w-0 gap-4",
+                "py-6",
+              )}
+            >
               <Droppable
                 id={"backlog-container"}
                 data={backlogTasks!}
                 status="Backlog"
+                isExpanded={isExpanded}
               />
               <Droppable
                 id={"inprogress-container"}
                 data={inProgressTasks!}
                 status="In Progress"
+                isExpanded={isExpanded}
               />
               <Droppable
                 id={"completed-container"}
                 data={completedTasks!}
                 status="Completed"
+                isExpanded={isExpanded}
               />
               <Droppable
                 id={"fortesting-container"}
                 data={forTestingTasks!}
                 status="For Testing"
+                isExpanded={isExpanded}
               />
               <Droppable
                 id={"reject-container"}
                 data={forRejectTasks!}
                 status="Reject"
+                isExpanded={isExpanded}
               />
               <Droppable
                 id={"finished-container"}
                 data={finishedTasks!}
                 status="Finished"
+                isExpanded={isExpanded}
               />
               <DragOverlay
                 dropAnimation={{

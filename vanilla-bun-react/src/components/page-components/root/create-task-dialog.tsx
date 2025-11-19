@@ -78,10 +78,7 @@ const CreateTaskDialog = () => {
       }}
     >
       <DialogTrigger asChild>
-        <Button
-          variant={"ghost"}
-          className=" h-fit hover:cursor-pointer rounded-full hover:bg-primary/20 dark:hover:bg-primary/20"
-        >
+        <Button variant={"outline"}>
           <Plus />
         </Button>
       </DialogTrigger>
