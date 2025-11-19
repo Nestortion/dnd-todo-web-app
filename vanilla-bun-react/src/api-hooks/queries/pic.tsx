@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import API from "../helpers/api-methods";
 import type { PIC } from "@/types";
 
-const useGetPicList = ({
+export const useGetPicList = ({
   projectId,
   seatTableId,
 }: {
@@ -26,4 +26,13 @@ const useGetPicList = ({
   });
 };
 
-export { useGetPicList };
+export const useGetUnassignedPics = (projectId: number) => {
+  return useQuery({
+    queryKey: ["unassigned-pic-list", projectId],
+    queryFn: async () => {
+      const data = await API.get<Array<PIC>>("/pic/unassigned/" + projectId);
+      return data;
+    },
+    staleTime: Infinity,
+  });
+};

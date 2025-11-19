@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useDraggable, useDroppable } from "@dnd-kit/core";
-import { memo, type ComponentProps } from "react";
+import { useDndContext, useDraggable, useDroppable } from "@dnd-kit/core";
+import { memo, useContext, type ComponentProps } from "react";
 import type { PIC } from "@/types";
+import { DataContext } from "@/context";
 
 const DroppablePIC = memo(
   ({
@@ -15,6 +16,7 @@ const DroppablePIC = memo(
     pic?: PIC;
     seatTableId?: number;
   }) => {
+    const con = useDndContext();
     const {
       setNodeRef: dragRef,
       listeners,
@@ -45,14 +47,15 @@ const DroppablePIC = memo(
         <Card
           ref={dropRef}
           className={cn(
-            isOver // && String(con.active?.id).includes("draggable-seat")
+            isOver &&
+              !(con.active?.data.current?.type === "draggable-unassigned")
               ? "bg-primary"
               : "bg-secondary",
             "h-fit p-0 shadow-xl w-fit rounded-full hover:bg-primary hover:cursor-pointer",
           )}
         >
           <CardHeader hidden className="flex justify-between relative">
-            <CardTitle>{}</CardTitle>
+            <CardTitle aria-hidden hidden />
           </CardHeader>
           <CardContent className="p-2 h-fit">
             <img
@@ -60,7 +63,6 @@ const DroppablePIC = memo(
               className="aspect-square w-32 rounded-full text-center"
               alt={pic?.id.toString() ?? ""}
             />
-            {/* {pic?.name} */}
           </CardContent>
         </Card>
       </div>

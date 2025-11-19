@@ -32,6 +32,8 @@ import { ToggleGroup } from "@/components/ui/toggle-group";
 import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import UnassignedPic from "@/components/page-components/root/unassigned-pic";
+import DraggableUnassignedPic from "@/components/page-components/root/draggable-unassigned-pic";
 
 export const Route = createFileRoute("/$projectId/")({
   component: Index,
@@ -47,9 +49,17 @@ function Index() {
   const { data: currentProject, isSuccess: currentProjectIsSuccess } =
     useGetProject(Number(params.projectId));
   const [activeItem, setActiveItem] = useState<
-    { id: number; task: Task } | { id: number; pic: PIC }
+    | { id: number; task: Task }
+    | { id: number; pic: PIC; type: "Assigned" | "Unassigned" }
   >();
-  const { localTasks, setLocalTasks } = useContext(DataContext)!;
+  const {
+    localTasks,
+    setLocalTasks,
+    setLocalPics,
+    setUnassignedPics,
+    unassignedPics,
+    localPics,
+  } = useContext(DataContext)!;
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isGridView, setIsGridView] = useState<boolean>(false);
 
@@ -162,6 +172,7 @@ function Index() {
                 picId: Number(active.data.current?.pic.id),
                 seatTableId: Number(active.data.current?.pic.seatTableId),
               },
+              type: "move",
             }),
             {
               loading: "Moving seat...",
@@ -190,6 +201,99 @@ function Index() {
             },
           );
         }
+      } else if (String(over.id).includes("droppable-table")) {
+        if (
+          localPics &&
+          localPics[Number(over.data.current?.table.id)]?.some(
+            (p) => p.id === Number(active.data.current?.pic.id),
+          )
+        )
+          return;
+        // if (String(active.id).includes("draggable-unassigned")) {
+        //   setUnassignedPics((prev) =>
+        //     prev?.filter((p) => p.id !== active.data.current?.pic.id),
+        //   );
+        // }
+        // setLocalPics((prev) => {
+        //   let updatedNewTable = prev![Number(over.data.current?.table.id)];
+        //   updatedNewTable?.push(active.data.current?.pic);
+        //
+        //   let updatedPrevTable =
+        //     prev![Number(active.data.current?.seatTableId)];
+        //   if (updatedPrevTable) {
+        //     updatedPrevTable = updatedPrevTable.filter(
+        //       (p) => p.id !== Number(active.data.current?.pic.id),
+        //     );
+        //     return {
+        //       ...prev,
+        //       [Number(over.data.current?.table.id)]: updatedNewTable!,
+        //       [Number(active.data.current?.seatTableId)]: updatedPrevTable,
+        //     };
+        //   }
+        //
+        //   return {
+        //     ...prev,
+        //     [Number(over.data.current?.table.id)]: updatedNewTable!,
+        //   };
+        // });
+        toast.promise(
+          movePicSeatMutation.mutateAsync({
+            current: {
+              picId: Number(active.data.current?.pic.id),
+              seatTableId: Number(over.data.current?.table.id),
+            },
+            type: "assign",
+          }),
+          {
+            loading: "Moving seat...",
+            success: (data) => {
+              return data.message;
+            },
+            error: (error) => {
+              return error.message;
+            },
+          },
+        );
+      } else if (String(over.id).includes("droppable-unassigned-table")) {
+        if (
+          unassignedPics?.some(
+            (p) => p.id === Number(active.data.current?.pic.id),
+          )
+        )
+          return;
+        // setLocalPics((prev) => {
+        //   const updated = prev![Number(over.data.current?.table.id)];
+        //
+        //   return {
+        //     ...prev,
+        //     [Number(over.data.current?.table.id)]: updated?.filter(
+        //       (p) => p.id !== Number(active.data.current?.pic.id),
+        //     )!,
+        //   };
+        // });
+        // setUnassignedPics((prev) => {
+        //   const updated = prev;
+        //   updated?.push(active.data.current?.pic);
+        //   return updated;
+        // });
+        toast.promise(
+          movePicSeatMutation.mutateAsync({
+            current: {
+              picId: Number(active.data.current?.pic.id),
+              seatTableId: Number(active.data.current?.pic.seatTableId),
+            },
+            type: "unassign",
+          }),
+          {
+            loading: "Moving seat...",
+            success: (data) => {
+              return data.message;
+            },
+            error: (error) => {
+              return error.message;
+            },
+          },
+        );
       }
     }
     setActiveItem(undefined);
@@ -203,6 +307,13 @@ function Index() {
         setActiveItem({
           id: Number(active.data.current?.pic.id),
           pic: active.data.current?.pic,
+          type: "Assigned",
+        });
+      } else if (String(active.id).includes("draggable-unassigned")) {
+        setActiveItem({
+          id: Number(active.data.current?.pic.id),
+          pic: active.data.current?.pic,
+          type: "Unassigned",
         });
       } else {
         setActiveItem({
@@ -331,17 +442,23 @@ function Index() {
                     className="transform rotate-6 opacity-70"
                     data={activeItem.task}
                   />
-                ) : (
+                ) : activeItem?.type === "Assigned" ? (
                   <DroppablePIC
                     id={activeItem?.id.toString()!}
                     pic={activeItem?.pic}
+                  />
+                ) : (
+                  <DraggableUnassignedPic
+                    pic={activeItem?.pic}
+                    dragId={activeItem?.id}
                   />
                 )}
               </DragOverlay>
             </div>
           </ScrollArea>
         )}
-        <div className="">
+        <div className="grid grid-cols-(--seat-plan-grid) mt-4 gap-4">
+          <UnassignedPic />
           <SeatPlan />
         </div>
       </div>

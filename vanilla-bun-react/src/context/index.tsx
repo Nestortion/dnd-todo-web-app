@@ -9,15 +9,20 @@ import {
 
 type ContextType = {
   localTasks?: Array<Task>;
-  localPics?: Array<PIC>;
+  localPics?: Record<number, Array<PIC>>;
+  unassignedPics?: Array<PIC>;
   setLocalTasks: Dispatch<SetStateAction<Array<Task> | undefined>>;
-  setLocalPics: Dispatch<SetStateAction<Array<PIC> | undefined>>;
+  setLocalPics: Dispatch<
+    SetStateAction<Record<number, Array<PIC>> | undefined>
+  >;
+  setUnassignedPics: Dispatch<SetStateAction<Array<PIC> | undefined>>;
 };
 export const DataContext = createContext<ContextType | undefined>(undefined);
 
 export const DataContextWrapper = ({ children }: { children?: ReactNode }) => {
   const [localTasks, setLocalTasks] = useState<Array<Task>>();
-  const [localPics, setLocalPics] = useState<Array<PIC>>();
+  const [localPics, setLocalPics] = useState<Record<number, Array<PIC>>>();
+  const [unassignedPics, setUnassignedPics] = useState<Array<PIC>>();
 
   return (
     <DataContext
@@ -26,6 +31,8 @@ export const DataContextWrapper = ({ children }: { children?: ReactNode }) => {
         setLocalTasks,
         localPics,
         setLocalPics,
+        unassignedPics,
+        setUnassignedPics,
       }}
     >
       {children}
