@@ -9,24 +9,17 @@ import {
 import { useParams } from "@tanstack/react-router";
 import DraggableUnassignedPic from "./draggable-unassigned-pic";
 import { useDroppable } from "@dnd-kit/core";
-import { useContext, useEffect, type FC } from "react";
+import { memo, type FC } from "react";
 import { cn } from "@/lib/utils";
-import { DataContext } from "@/context";
 
-const UnassignedPic: FC = () => {
+const UnassignedPic: FC = memo(() => {
   const params = useParams({ from: "/$projectId/" });
 
   const { data, isSuccess } = useGetUnassignedPics(Number(params.projectId));
-  const { unassignedPics, setUnassignedPics } = useContext(DataContext)!;
 
   const { isOver, setNodeRef: dropRef } = useDroppable({
     id: `droppable-unassigned-table`,
   });
-  useEffect(() => {
-    if (!isSuccess) return;
-    // if(data.id in localPics!){}
-    setUnassignedPics(data);
-  }, [data, isSuccess]);
   return (
     <Card
       ref={dropRef}
@@ -37,14 +30,13 @@ const UnassignedPic: FC = () => {
       </CardHeader>
       <CardContent className="space-y-2">
         {isSuccess &&
-          unassignedPics &&
-          unassignedPics.map((pic) => (
+          data.map((pic) => (
             <DraggableUnassignedPic key={pic.id} dragId={pic.id} pic={pic} />
           ))}
       </CardContent>
       <CardFooter></CardFooter>
     </Card>
   );
-};
+});
 
 export default UnassignedPic;

@@ -1,14 +1,7 @@
-import EmptyComponent from "@/components/state-components/empty";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { PicTable } from "@/types";
-import {
-  memo,
-  useContext,
-  useEffect,
-  type ComponentProps,
-  type FC,
-} from "react";
+import { memo, type ComponentProps, type FC } from "react";
 import DroppablePIC from "./droppable-pic";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -26,7 +19,6 @@ import { Plus } from "lucide-react";
 import { useGetPicList } from "@/api-hooks/queries";
 import { useParams } from "@tanstack/react-router";
 import { useDroppable } from "@dnd-kit/core";
-import { DataContext } from "@/context";
 
 const SeatTable = memo(
   ({
@@ -40,19 +32,12 @@ const SeatTable = memo(
       seatTableId: data.id,
     });
 
-    const { localPics, setLocalPics } = useContext(DataContext)!;
     const { setNodeRef, isOver } = useDroppable({
       id: `droppable-table-${data.id}`,
       data: {
         table: data,
       },
     });
-
-    useEffect(() => {
-      if (!picListSuccess) return;
-      // if(data.id in localPics!){}
-      setLocalPics((prev) => ({ ...prev, [data.id]: picList }));
-    }, [picList, picListSuccess]);
 
     return (
       <Card
@@ -68,10 +53,9 @@ const SeatTable = memo(
         </CardHeader>
         <CardContent className="grid grid-cols-3 gap-4">
           {picListSuccess &&
-            localPics &&
-            localPics[data.id]?.map((p) => (
+            picList.map((p, index) => (
               <div
-                key={p.id}
+                key={index}
                 className="flex flex-col items-center gap-2 text-center"
               >
                 <DroppablePIC
@@ -88,7 +72,7 @@ const SeatTable = memo(
   },
 );
 
-const CreatePICDialog: FC = () => {
+const CreatePICDialog: FC = memo(() => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -106,6 +90,6 @@ const CreatePICDialog: FC = () => {
       </DialogContent>
     </Dialog>
   );
-};
+});
 
 export default SeatTable;

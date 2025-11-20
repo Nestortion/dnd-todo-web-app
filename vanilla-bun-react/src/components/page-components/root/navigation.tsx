@@ -7,8 +7,9 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Link } from "@tanstack/react-router";
 import ProjectsDialog from "./projects-dialog";
+import { memo } from "react";
 
-const Navigation = () => {
+const Navigation = memo(() => {
   return (
     <NavigationMenu className="justify-between w-full p-2">
       <NavigationMenuList>
@@ -37,6 +38,6 @@ const Navigation = () => {
       </NavigationMenuList>
     </NavigationMenu>
   );
-};
+});
 
 export default Navigation;

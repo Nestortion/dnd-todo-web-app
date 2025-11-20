@@ -9,8 +9,9 @@ import {
 import { cn } from "@/lib/utils";
 import { useParams } from "@tanstack/react-router";
 import { Users } from "lucide-react";
+import { memo } from "react";
 
-const ProjectMembersDropdown = () => {
+const ProjectMembersDropdown = memo(() => {
   const params = useParams({ from: "/$projectId/" });
   const { data: picList, isSuccess: picListIsSuccess } = useGetPicList({
     projectId: Number(params.projectId),
@@ -58,6 +59,6 @@ const ProjectMembersDropdown = () => {
       )}
     </Button>
   );
-};
+});
 
 export default ProjectMembersDropdown;

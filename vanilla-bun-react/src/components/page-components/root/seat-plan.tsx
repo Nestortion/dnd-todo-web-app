@@ -12,10 +12,10 @@ import EmptyComponent from "@/components/state-components/empty";
 import { Grid2x2Plus, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CreateTableDialog from "./create-table-dialog";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const SeatPlan = () => {
+const SeatPlan = memo(() => {
   const [openCreateTable, setOpenCreateTable] = useState<boolean>(false);
   const params = useParams({ from: "/$projectId/" });
   const { data: seatTables, isSuccess: seatTablesSuccess } = useGetSeatTables(
@@ -67,6 +67,6 @@ const SeatPlan = () => {
       </CardContent>
     </Card>
   );
-};
+});
 
 export default SeatPlan;

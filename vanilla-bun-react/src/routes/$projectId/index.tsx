@@ -8,13 +8,12 @@ import {
 } from "@dnd-kit/core";
 import Draggable from "@/components/page-components/root/draggable";
 import Droppable from "@/components/page-components/root/droppable";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useGetProject, useGetTasks } from "@/api-hooks/queries";
 import { useAssignTask, useMovePic, useMoveTask } from "@/api-hooks/mutations";
 import DroppablePIC from "@/components/page-components/root/droppable-pic";
 import SeatPlan from "@/components/page-components/root/seat-plan";
 import type { TaskStatus } from "@/types/contants";
-import { DataContext } from "@/context";
 import { toast } from "sonner";
 import { MyPointerSensor, type PIC, type Task } from "@/types";
 import { formatDate } from "@/helpers";
@@ -28,18 +27,13 @@ import {
   Settings,
   UnfoldVertical,
 } from "lucide-react";
-import { ToggleGroup } from "@/components/ui/toggle-group";
 import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import UnassignedPic from "@/components/page-components/root/unassigned-pic";
 import DraggableUnassignedPic from "@/components/page-components/root/draggable-unassigned-pic";
 
-export const Route = createFileRoute("/$projectId/")({
-  component: Index,
-});
-
-function Index() {
+const Index = memo(() => {
   const params = Route.useParams();
 
   // queries and state
@@ -52,14 +46,7 @@ function Index() {
     | { id: number; task: Task }
     | { id: number; pic: PIC; type: "Assigned" | "Unassigned" }
   >();
-  const {
-    localTasks,
-    setLocalTasks,
-    setLocalPics,
-    setUnassignedPics,
-    unassignedPics,
-    localPics,
-  } = useContext(DataContext)!;
+  const [localTasks, setLocalTasks] = useState<Array<Task>>();
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isGridView, setIsGridView] = useState<boolean>(false);
 
@@ -202,45 +189,16 @@ function Index() {
           );
         }
       } else if (String(over.id).includes("droppable-table")) {
-        if (
-          localPics &&
-          localPics[Number(over.data.current?.table.id)]?.some(
-            (p) => p.id === Number(active.data.current?.pic.id),
-          )
-        )
-          return;
-        // if (String(active.id).includes("draggable-unassigned")) {
-        //   setUnassignedPics((prev) =>
-        //     prev?.filter((p) => p.id !== active.data.current?.pic.id),
-        //   );
-        // }
-        // setLocalPics((prev) => {
-        //   let updatedNewTable = prev![Number(over.data.current?.table.id)];
-        //   updatedNewTable?.push(active.data.current?.pic);
-        //
-        //   let updatedPrevTable =
-        //     prev![Number(active.data.current?.seatTableId)];
-        //   if (updatedPrevTable) {
-        //     updatedPrevTable = updatedPrevTable.filter(
-        //       (p) => p.id !== Number(active.data.current?.pic.id),
-        //     );
-        //     return {
-        //       ...prev,
-        //       [Number(over.data.current?.table.id)]: updatedNewTable!,
-        //       [Number(active.data.current?.seatTableId)]: updatedPrevTable,
-        //     };
-        //   }
-        //
-        //   return {
-        //     ...prev,
-        //     [Number(over.data.current?.table.id)]: updatedNewTable!,
-        //   };
-        // });
         toast.promise(
           movePicSeatMutation.mutateAsync({
             current: {
               picId: Number(active.data.current?.pic.id),
               seatTableId: Number(over.data.current?.table.id),
+              // prevTableId: active.data.current?.type.includes(
+              //   "draggable-unassigned",
+              // )
+              //   ? "unassigned"
+              //   : Number(active.data.current?.pic.seatTableId),
             },
             type: "assign",
           }),
@@ -255,27 +213,12 @@ function Index() {
           },
         );
       } else if (String(over.id).includes("droppable-unassigned-table")) {
-        if (
-          unassignedPics?.some(
-            (p) => p.id === Number(active.data.current?.pic.id),
-          )
-        )
-          return;
-        // setLocalPics((prev) => {
-        //   const updated = prev![Number(over.data.current?.table.id)];
-        //
-        //   return {
-        //     ...prev,
-        //     [Number(over.data.current?.table.id)]: updated?.filter(
-        //       (p) => p.id !== Number(active.data.current?.pic.id),
-        //     )!,
-        //   };
-        // });
-        // setUnassignedPics((prev) => {
-        //   const updated = prev;
-        //   updated?.push(active.data.current?.pic);
-        //   return updated;
-        // });
+        // if (
+        //   unassignedPics?.some(
+        //     (p) => p.id === Number(active.data.current?.pic.id),
+        //   )
+        // )
+        //   return;
         toast.promise(
           movePicSeatMutation.mutateAsync({
             current: {
@@ -464,4 +407,9 @@ function Index() {
       </div>
     </DndContext>
   );
-}
+});
+
+export const Route = createFileRoute("/$projectId/")({
+  component: Index,
+  loader: () => {},
+});

@@ -32,10 +32,10 @@ import { createTaskSchema, type CreateTask } from "@/schemas";
 import { useForm } from "@tanstack/react-form";
 import { useParams } from "@tanstack/react-router";
 import { Plus, UserRoundX } from "lucide-react";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { toast } from "sonner";
 
-const CreateTaskDialog = () => {
+const CreateTaskDialog = memo(() => {
   const params = useParams({ from: "/$projectId/" });
   const { data: picList, isSuccess } = useGetPicList({
     projectId: Number(params.projectId),
@@ -222,6 +222,6 @@ const CreateTaskDialog = () => {
       </DialogContent>
     </Dialog>
   );
-};
+});
 
 export default CreateTaskDialog;

@@ -16,10 +16,10 @@ import {
 } from "@/components/ui/input-group";
 import { useNavigate } from "@tanstack/react-router";
 import { CornerDownRight, FolderPlus, SearchIcon } from "lucide-react";
-import { useState, type FC } from "react";
+import { memo, useState, type FC } from "react";
 import CreateProjectDialog from "./create-project-dialog";
 
-const ProjectsDialog: FC = () => {
+const ProjectsDialog: FC = memo(() => {
   const navigate = useNavigate();
   const [projectSearch, setProjectSearch] = useState<string>("");
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -77,6 +77,6 @@ const ProjectsDialog: FC = () => {
       </DialogContent>
     </Dialog>
   );
-};
+});
 
 export default ProjectsDialog;

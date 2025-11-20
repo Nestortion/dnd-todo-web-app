@@ -9,9 +9,7 @@ const RootLayout = () => (
     <div className="mx-20">
       <Navigation />
       <div className="p-4">
-        <DataContextWrapper>
-          <Outlet />
-        </DataContextWrapper>
+        <Outlet />
       </div>
       <TanStackRouterDevtools />
     </div>

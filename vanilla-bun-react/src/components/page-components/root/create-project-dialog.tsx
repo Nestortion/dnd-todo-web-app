@@ -20,7 +20,13 @@ import { createProjectSchema, type CreateProject } from "@/schemas";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { FolderPlus } from "lucide-react";
-import { useState, type Dispatch, type FC, type SetStateAction } from "react";
+import {
+  memo,
+  useState,
+  type Dispatch,
+  type FC,
+  type SetStateAction,
+} from "react";
 import { toast } from "sonner";
 
 const defaultValues: CreateProject = {
@@ -32,7 +38,7 @@ type Props = {
   setParentOpen?: Dispatch<SetStateAction<boolean>>;
 };
 
-const CreateProjectDialog: FC<Props> = ({ setParentOpen }) => {
+const CreateProjectDialog: FC<Props> = memo(({ setParentOpen }) => {
   const [open, setOpen] = useState<boolean>(false);
 
   const createProjectMutation = useCreateProject();
@@ -152,6 +158,6 @@ const CreateProjectDialog: FC<Props> = ({ setParentOpen }) => {
       </DialogContent>
     </Dialog>
   );
-};
+});
 
 export default CreateProjectDialog;

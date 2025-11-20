@@ -21,7 +21,13 @@ import {
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useForm } from "@tanstack/react-form";
 import { useParams } from "@tanstack/react-router";
-import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
+import {
+  memo,
+  type Dispatch,
+  type FC,
+  type ReactNode,
+  type SetStateAction,
+} from "react";
 
 type Props = {
   open: boolean;
@@ -29,7 +35,7 @@ type Props = {
   trigger?: ReactNode;
 };
 
-const CreateTableDialog: FC<Props> = ({ open, setOpen, trigger }) => {
+const CreateTableDialog: FC<Props> = memo(({ open, setOpen, trigger }) => {
   const params = useParams({ from: "/$projectId/" });
 
   const defaultValues: CreateSeatTable = {
@@ -127,6 +133,6 @@ const CreateTableDialog: FC<Props> = ({ open, setOpen, trigger }) => {
       </DialogContent>
     </Dialog>
   );
-};
+});
 
 export default CreateTableDialog;
