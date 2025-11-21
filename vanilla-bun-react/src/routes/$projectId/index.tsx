@@ -9,7 +9,12 @@ import {
 import Draggable from "@/components/page-components/root/draggable";
 import Droppable from "@/components/page-components/root/droppable";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { useGetProject, useGetTasks } from "@/api-hooks/queries";
+import {
+  useGetProject,
+  useGetSeatTables,
+  useGetTablePics,
+  useGetTasks,
+} from "@/api-hooks/queries";
 import { useAssignTask, useMovePic, useMoveTask } from "@/api-hooks/mutations";
 import DroppablePIC from "@/components/page-components/root/droppable-pic";
 import SeatPlan from "@/components/page-components/root/seat-plan";
@@ -32,6 +37,7 @@ import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import UnassignedPic from "@/components/page-components/root/unassigned-pic";
 import DraggableUnassignedPic from "@/components/page-components/root/draggable-unassigned-pic";
+import { useQueries, useQuery } from "@tanstack/react-query";
 
 const Index = memo(() => {
   const params = Route.useParams();
@@ -42,11 +48,17 @@ const Index = memo(() => {
   );
   const { data: currentProject, isSuccess: currentProjectIsSuccess } =
     useGetProject(Number(params.projectId));
+
+  const { data: tablePics, isSuccess: tablePicsIsSuccess } = useGetTablePics(
+    Number(params.projectId),
+  );
+
   const [activeItem, setActiveItem] = useState<
     | { id: number; task: Task }
     | { id: number; pic: PIC; type: "Assigned" | "Unassigned" }
   >();
   const [localTasks, setLocalTasks] = useState<Array<Task>>();
+  const [localPics, setLocalPics] = useState<Record<string, Array<PIC>>>();
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isGridView, setIsGridView] = useState<boolean>(false);
 
@@ -86,6 +98,10 @@ const Index = memo(() => {
   const assignTaskMutation = useAssignTask();
 
   // side effects
+  useEffect(() => {
+    if (!tablePicsIsSuccess) return;
+    setLocalPics(tablePics);
+  }, [tablePics, tablePicsIsSuccess]);
   useEffect(() => {
     if (!tasksIsSuccess) return;
     setLocalTasks(tasks);
@@ -128,6 +144,7 @@ const Index = memo(() => {
         String(over.id).includes("container") &&
         active?.data.current?.type === "draggable-task"
       ) {
+        console.log(localTasks);
         if (over.id === "backlog-container") {
           if (backlogTasks?.some((d) => d.id === active.id)) return;
           updateTaskStatus(active.id, "Backlog");
@@ -189,6 +206,33 @@ const Index = memo(() => {
           );
         }
       } else if (String(over.id).includes("droppable-table")) {
+        if (
+          Number(over.data.current?.table.id) ===
+          Number(active.data.current?.pic.seatTableId)
+        )
+          return;
+
+        setLocalPics((prev) => {
+          const activeTableId = Number(active.data.current?.pic.seatTableId);
+          const activeTable = prev![activeTableId]!;
+          const picToMove = activeTable?.find(
+            (p) => p.id === Number(active.data.current?.pic.id),
+          )!;
+
+          const overTableId = Number(over.data.current?.table.id);
+          const overTable = prev![overTableId] ?? [];
+
+          return {
+            ...prev,
+            [overTableId]: [...overTable, picToMove].sort(
+              (a, b) => a.seatNumber - b.seatNumber,
+            ),
+            [activeTableId]: activeTable
+              .filter((p) => p.id !== picToMove.id)
+              .sort((a, b) => a.seatNumber - b.seatNumber),
+          };
+        });
+
         toast.promise(
           movePicSeatMutation.mutateAsync({
             current: {
@@ -402,7 +446,9 @@ const Index = memo(() => {
         )}
         <div className="grid grid-cols-(--seat-plan-grid) mt-4 gap-4">
           <UnassignedPic />
-          <SeatPlan />
+          {tablePicsIsSuccess && localPics && (
+            <SeatPlan tablePics={localPics} />
+          )}
         </div>
       </div>
     </DndContext>

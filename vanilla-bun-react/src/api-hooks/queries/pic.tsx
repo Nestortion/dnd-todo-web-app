@@ -20,6 +20,19 @@ export const useGetPicList = ({
     queryKey: ["pic-list", projectId, seatTableId],
     queryFn: async () => {
       const data = await API.get<Array<PIC>>("/pic/?" + searchParams);
+      return data.map((d) => ({ ...d, seatTableId }));
+    },
+    staleTime: Infinity,
+  });
+};
+
+export const useGetTablePics = (projectId: number) => {
+  return useQuery({
+    queryKey: ["table-pic-list", projectId],
+    queryFn: async () => {
+      const data = await API.get<Record<number, Array<PIC>>>(
+        "/pic/table-pics/" + projectId,
+      );
       return data;
     },
     staleTime: Infinity,

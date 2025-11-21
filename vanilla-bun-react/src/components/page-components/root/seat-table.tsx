@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import type { PicTable } from "@/types";
+import type { PIC, PicTable } from "@/types";
 import { memo, type ComponentProps, type FC } from "react";
 import DroppablePIC from "./droppable-pic";
 import { Badge } from "@/components/ui/badge";
@@ -16,22 +16,16 @@ import {
 import CreatePICForm from "./create-pic-form";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useGetPicList } from "@/api-hooks/queries";
-import { useParams } from "@tanstack/react-router";
 import { useDroppable } from "@dnd-kit/core";
 
 const SeatTable = memo(
   ({
     data,
+    picList,
   }: ComponentProps<"div"> & {
     data: PicTable;
+    picList: Array<PIC>;
   }) => {
-    const params = useParams({ from: "/$projectId/" });
-    const { data: picList, isSuccess: picListSuccess } = useGetPicList({
-      projectId: Number(params.projectId),
-      seatTableId: data.id,
-    });
-
     const { setNodeRef, isOver } = useDroppable({
       id: `droppable-table-${data.id}`,
       data: {
@@ -52,20 +46,19 @@ const SeatTable = memo(
           <CreatePICDialog />
         </CardHeader>
         <CardContent className="grid grid-cols-3 gap-4">
-          {picListSuccess &&
-            picList.map((p, index) => (
-              <div
-                key={index}
-                className="flex flex-col items-center gap-2 text-center"
-              >
-                <DroppablePIC
-                  id={`${data.id}${p.seatNumber}`}
-                  pic={p}
-                  seatTableId={data.id}
-                />
-                <Badge variant={"outline"}>{p.name}</Badge>
-              </div>
-            ))}
+          {picList.map((p, index) => (
+            <div
+              key={index}
+              className="flex flex-col items-center gap-2 text-center"
+            >
+              <DroppablePIC
+                id={`${data.id}${p.seatNumber}`}
+                pic={p}
+                seatTableId={data.id}
+              />
+              <Badge variant={"outline"}>{p.name}</Badge>
+            </div>
+          ))}
         </CardContent>
       </Card>
     );

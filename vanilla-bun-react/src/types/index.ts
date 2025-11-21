@@ -22,6 +22,7 @@ export type PIC = {
   name: string;
   seatNumber: number;
   profileImage?: string;
+  seatTableId?: number;
 };
 
 export type PicTable = {

@@ -42,7 +42,7 @@ const useMovePic = () => {
     },
     onSuccess: async (_, { type }) => {
       await queryClient.invalidateQueries({
-        queryKey: ["pic-list", Number(params.projectId)],
+        queryKey: ["table-pic-list", Number(params.projectId)],
       });
       if (type !== "move") {
         await queryClient.invalidateQueries({
