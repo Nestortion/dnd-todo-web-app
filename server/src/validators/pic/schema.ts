@@ -27,6 +27,10 @@ export const getUnassignedPicSchema = z.object({
   projectId: z.coerce.number(),
 });
 
+export const getTablePicSchema = z.object({
+  projectId: z.coerce.number(),
+});
+
 export const movePicSchema = z.object({
   target: z
     .object({

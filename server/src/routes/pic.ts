@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import {
   createPicValidator,
   getAllQueryValidator,
+  getTablePicQueryValidator,
   getUnassignedPicQueryValidator,
   movePicValidator,
 } from "../validators/pic";
@@ -14,10 +15,12 @@ import {
   eq,
   getTableColumns,
   inArray,
+  isNotNull,
   isNull,
 } from "drizzle-orm";
 import { picsTable, picToSeatTables, seatTablesTable } from "../db/schemas";
 import { picToProjectsTables } from "../db/schemas/pic-to-projects";
+import type { PIC } from "../validators/pic/schema";
 
 const picRoutes = new Hono();
 
@@ -67,6 +70,56 @@ picRoutes.get("/", getAllQueryValidator, async (c) => {
     return c.json({ message: "Error getting pics" }, 500);
   }
 });
+
+// get table pics by projectId
+picRoutes.get(
+  "/table-pics/:projectId",
+  getTablePicQueryValidator,
+  async (c) => {
+    const param = c.req.valid("param");
+    try {
+      const { isDeleted, ...picDetails } = getTableColumns(picsTable);
+
+      let pics = await db
+        .selectDistinct({
+          seatTableId: picToSeatTables.seatTableId,
+          pics: { ...picDetails, seatNumber: picToSeatTables.seatNumber },
+        })
+        .from(picToProjectsTables)
+        .leftJoin(
+          picToSeatTables,
+          and(
+            eq(picToSeatTables.picId, picToProjectsTables.picId),
+            eq(picToProjectsTables.projectId, param.projectId),
+          ),
+        )
+        .innerJoin(picsTable, eq(picsTable.id, picToProjectsTables.picId))
+        .where(isNotNull(picToSeatTables.id))
+        .orderBy(asc(picToSeatTables.seatNumber));
+
+      const data: Record<
+        number,
+        Array<Omit<typeof picsTable._.inferSelect, "isDeleted">>
+      > = {};
+
+      pics.forEach((r) => {
+        const arr = data[r.seatTableId!] ?? [];
+        data[r.seatTableId!] = [
+          ...arr,
+          {
+            ...r.pics,
+            profileImage: `https://avatar.iran.liara.run/public/${r.pics.id}`,
+          },
+        ];
+      });
+
+      return c.json(data);
+    } catch (error) {
+      console.log(error);
+      return c.json({ message: "Error getting pics" }, 500);
+    }
+  },
+);
 
 // get all unassigned pic by projectId
 picRoutes.get(
